@@ -1,0 +1,171 @@
+//! > inlining of a function with a local var.
+
+//! > test_runner_name
+check_find_local_variables
+
+//! > function_name
+foo
+
+//! > function_code
+fn foo(x: felt252) -> felt252 {
+    bar(x)
+}
+
+//! > module_code
+#[inline(always)]
+fn bar(x: felt252) -> felt252 {
+    if x == 0 {
+        return x + 1;
+    } else {
+        let a = x + x;
+        // The call will force `a` to be a local variable.
+        revoke_ap();
+        a
+    }
+}
+
+// Revokes ap since this function is recursive.
+fn revoke_ap() {
+    revoke_ap()
+}
+
+//! > lowering_format
+Parameters: v0: core::felt252
+blk0 (root):
+Statements:
+End:
+  Match(match core::felt252_is_zero(v0) {
+    IsZeroResult::Zero => blk1,
+    IsZeroResult::NonZero(v2) => blk2,
+  })
+
+blk1:
+Statements:
+  (v3: core::felt252) <- 1u
+  (v8: core::felt252) <- core::felt252_add(v0, v3)
+End:
+  Goto(blk3, {v8 -> v1})
+
+blk2:
+Statements:
+  (v9: core::felt252) <- core::felt252_add(v0, v0)
+  (v6: ()) <- test::revoke_ap()
+End:
+  Goto(blk3, {v9 -> v1})
+
+blk3:
+Statements:
+End:
+  Return(v1)
+
+//! > local_variables
+v9
+
+//! > ==========================================================================
+
+//! > inlining of a function with a revoking goto.
+
+//! > test_runner_name
+check_find_local_variables
+
+//! > function_name
+foo
+
+//! > function_code
+fn foo(x: felt252) -> felt252 {
+    bar(x) + x
+}
+
+//! > module_code
+#[inline(always)]
+fn bar(x: felt252) -> felt252 {
+    if x == 0 {
+        revoke_ap();
+        return x + 1;
+    } else {
+        let a = x + x;
+        // The call will force `a` to be a local variable.
+        revoke_ap();
+        a
+    }
+}
+
+// Revokes ap since this function is recursive.
+fn revoke_ap() {
+  revoke_ap()
+}
+
+//! > lowering_format
+Parameters: v0: core::felt252
+blk0 (root):
+Statements:
+End:
+  Match(match core::felt252_is_zero(v0) {
+    IsZeroResult::Zero => blk1,
+    IsZeroResult::NonZero(v3) => blk2,
+  })
+
+blk1:
+Statements:
+  (v4: ()) <- test::revoke_ap()
+  (v5: core::felt252) <- 1u
+  (v11: core::felt252) <- core::felt252_add(v0, v5)
+End:
+  Goto(blk3, {v11 -> v1})
+
+blk2:
+Statements:
+  (v12: core::felt252) <- core::felt252_add(v0, v0)
+  (v8: ()) <- test::revoke_ap()
+End:
+  Goto(blk3, {v12 -> v1})
+
+blk3:
+Statements:
+  (v10: core::felt252) <- core::felt252_add(v1, v0)
+End:
+  Return(v10)
+
+//! > local_variables
+v12
+
+//! > ==========================================================================
+
+//! > Remapping - fallthrough without incoming gotos
+
+//! > test_runner_name
+check_find_local_variables
+
+//! > function_name
+foo
+
+//! > function_code
+fn foo(x: felt252) -> felt252 {
+    let y = bar(x + 1);
+    revoke_ap();
+    y
+}
+
+//! > module_code
+#[inline(always)]
+fn bar(x: felt252) -> felt252 {
+    x
+}
+
+// Revokes ap since this function is recursive.
+fn revoke_ap() {
+  revoke_ap()
+}
+
+//! > lowering_format
+Parameters: v0: core::felt252
+blk0 (root):
+Statements:
+  (v1: core::felt252) <- 1u
+  (v5: core::felt252) <- core::felt252_add(v0, v1)
+  (v4: ()) <- test::revoke_ap()
+End:
+  Return(v5)
+
+//! > local_variables
+v5

@@ -1,0 +1,57 @@
+//! > Test negative literal
+
+//! > test_runner_name
+test_partial_parser_tree(allow_diagnostics: false)
+
+//! > cairo_code
+fn f() -> u32 {
+    -3 * 5
+}
+
+//! > top_level_kind
+StatementExpr
+
+//! > ignored_kinds
+
+//! > expected_diagnostics
+
+//! > expected_tree
+└── Top level kind: StatementExpr
+    ├── expr (kind: ExprBinary)
+    │   ├── lhs (kind: ExprUnary)
+    │   │   ├── op (kind: TokenMinus): '-'
+    │   │   └── expr (kind: TokenLiteralNumber): '3'
+    │   ├── op (kind: TokenMul): '*'
+    │   └── rhs (kind: TokenLiteralNumber): '5'
+    └── semicolon (kind: OptionTerminalSemicolonEmpty) []
+
+//! > ==========================================================================
+
+//! > Test precedence between unary and binary operators
+
+//! > test_runner_name
+test_partial_parser_tree(allow_diagnostics: false)
+
+//! > cairo_code
+fn f() -> u32 {
+    -a * 5
+}
+
+//! > top_level_kind
+StatementExpr
+
+//! > ignored_kinds
+
+//! > expected_diagnostics
+
+//! > expected_tree
+└── Top level kind: StatementExpr
+    ├── expr (kind: ExprBinary)
+    │   ├── lhs (kind: ExprUnary)
+    │   │   ├── op (kind: TokenMinus): '-'
+    │   │   └── expr (kind: ExprPath)
+    │   │       └── item #0 (kind: PathSegmentSimple)
+    │   │           └── ident (kind: TokenIdentifier): 'a'
+    │   ├── op (kind: TokenMul): '*'
+    │   └── rhs (kind: TokenLiteralNumber): '5'
+    └── semicolon (kind: OptionTerminalSemicolonEmpty) []

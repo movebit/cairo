@@ -1,0 +1,91 @@
+//! > Test function call.
+
+//! > test_runner_name
+test_function_lowering
+
+//! > function
+fn foo(ref a: felt252) -> felt252 {
+    let b = true;
+    if true {
+      bar(ref a, b);
+    } else {
+    }
+    if false {
+      return 6;
+    } else {
+    }
+    5
+}
+
+//! > function_name
+foo
+
+//! > module_code
+fn bar(ref a: felt252, b: bool) {
+}
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+
+//! > lowering_flat
+Parameters: v0: core::felt252
+blk0 (root):
+Statements:
+  (v1: ()) <- struct_construct()
+  (v2: core::bool) <- bool::True(v1)
+  (v7: core::felt252, v6: ()) <- test::bar(v0, v2)
+  (v15: core::felt252) <- 5u
+End:
+  Return(v7, v15)
+
+//! > ==========================================================================
+
+//! > Test method call.
+
+//! > test_runner_name
+test_function_lowering
+
+//! > function
+fn foo() -> Option::<felt252> {
+  let x = Option::None(());
+  x.is_some();
+  x
+}
+
+//! > function_name
+foo
+
+//! > module_code
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+
+//! > lowering_flat
+Parameters:
+blk0 (root):
+Statements:
+  (v0: ()) <- struct_construct()
+  (v1: core::option::Option::<core::felt252>) <- Option::None(v0)
+  (v2: core::option::Option::<core::felt252>, v3: @core::option::Option::<core::felt252>) <- snapshot(v1)
+End:
+  Match(match_enum(v3) {
+    Option::Some(v5) => blk1,
+    Option::None(v6) => blk2,
+  })
+
+blk1:
+Statements:
+End:
+  Goto(blk3, {})
+
+blk2:
+Statements:
+End:
+  Goto(blk3, {})
+
+blk3:
+Statements:
+End:
+  Return(v2)

@@ -1,0 +1,130 @@
+//! > Test method
+
+//! > test_runner_name
+test_function_diagnostics
+
+//! > function
+fn foo() -> Option::<felt252> {
+    let x = Option::None(());
+    x.is_some();
+    x
+}
+
+//! > function_name
+foo
+
+//! > module_code
+trait AnotherTrait{
+    fn is_some(self: felt252) -> bool;
+}
+impl OtherImpl of AnotherTrait {
+    fn is_some(self: felt252) -> bool {
+        true
+    }
+}
+
+//! > expected_diagnostics
+
+//! > ==========================================================================
+
+//! > Test method failures
+
+//! > test_runner_name
+test_function_diagnostics
+
+//! > function
+fn foo() -> Option::<felt252> {
+    let x = Option::None(());
+    x.is_foo();
+    x.is_bla();
+    let y = Option::Some(true);
+    y.is_bar();
+    y.SomeOtherPrefix::is_bar();
+    x
+}
+
+//! > function_name
+foo
+
+//! > module_code
+trait MyTrait<T>{
+    fn is_bla(self: Option::<T>) -> bool;
+    fn is_bar(self: Option::<T>) -> bool;
+}
+impl MyTraitImpl<T> of MyTrait::<T> {
+    fn is_bla(self: Option<T>) -> bool {
+        match self {
+            Option::Some(_) => true,
+            Option::None => false,
+        }
+    }
+    fn is_bar(self: Option::<T>) -> bool { true }
+}
+impl AnotherMyTraitImpl<T> of MyTrait::<felt252> {
+    fn is_bla(self: Option::<felt252>) -> bool {
+        match self {
+            Option::Some(_) => true,
+            Option::None => false,
+        }
+    }
+    fn is_bar(self: Option::<felt252>) -> bool { true }
+}
+trait AnotherTrait{
+    fn is_bar(self: Option::<bool>) -> bool;
+}
+impl AnotherTraitImpl of AnotherTrait {
+    fn is_bar(self: Option::<bool>) -> bool {
+        false
+    }
+}
+
+//! > expected_diagnostics
+error: Method `is_foo` not found on type "core::option::Option::<?0>". Did you import the correct trait and impl?
+ --> lib.cairo:33:7
+    x.is_foo();
+      ^****^
+
+error: Ambiguous method call. More than one applicable trait function with a suitable self type was found: MyTrait::is_bar and AnotherTrait::is_bar. Consider adding type annotations or explicitly refer to the impl function.
+ --> lib.cairo:36:7
+    y.is_bar();
+      ^****^
+
+error: Invalid member expression.
+ --> lib.cairo:37:7
+    y.SomeOtherPrefix::is_bar();
+      ^***********************^
+
+error: Candidate impl test::AnotherMyTraitImpl::<?0> has an unused generic parameter.
+ --> lib.cairo:34:7
+    x.is_bla();
+      ^****^
+
+//! > ==========================================================================
+
+//! > Test calling a method of a trait from the generic arguments.
+
+//! > test_runner_name
+test_function_diagnostics
+
+//! > function
+fn foo() {
+    bar(3_u8);
+}
+
+//! > function_name
+foo
+
+//! > module_code
+fn bar<T, impl CallableImpl: callable::CallableTrait<T>>(x: T) {
+    x.call();
+}
+mod callable {
+    trait CallableTrait<T>{
+        fn call(self: T);
+    }
+    impl U8Callable of CallableTrait<u8> {
+        fn call(self: T) {}
+    }
+}
+
+//! > expected_diagnostics

@@ -1,0 +1,61 @@
+//! > Test variable lifetime with local variables
+
+//! > test_runner_name
+check_variable_lifetime
+
+//! > function_name
+foo
+
+//! > function_code
+fn foo(x: felt252) -> felt252 {
+    if x == 0 {
+        x
+    } else {
+        let a = x + x;
+        // The recursive call will force `a` to be a local variable.
+        foo(0);
+        a
+    }
+}
+
+//! > module_code
+
+//! > lowering_format
+Parameters: v0: core::felt252
+blk0 (root):
+Statements:
+End:
+  Match(match core::felt252_is_zero(v0) {
+    IsZeroResult::Zero => blk1,
+    IsZeroResult::NonZero(v1) => blk2,
+  })
+
+blk1:
+Statements:
+End:
+  Goto(blk3, {v0 -> v5})
+
+blk2:
+Statements:
+  (v6: core::felt252) <- core::felt252_add(v0, v0)
+  (v3: core::felt252) <- 0u
+  (v4: core::felt252) <- test::foo(v3)
+End:
+  Goto(blk3, {v6 -> v5})
+
+blk3:
+Statements:
+End:
+  Return(v5)
+
+//! > last_use
+v5: ((BlockId(3), 0), 0)
+v6: ((BlockId(2), 3), 0)
+v3: ((BlockId(2), 2), 0)
+v0: ((BlockId(2), 0), 1)
+v0: ((BlockId(1), 0), 0)
+
+//! > drops
+PostStatement((BlockId(2), 2)): v4
+BeginningOfBlock(BlockId(2)): v1
+BeginningOfBlock(BlockId(1)): UninitializedLocal(v6)

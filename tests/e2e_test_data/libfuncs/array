@@ -1,0 +1,910 @@
+//! > array_new libfunc
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+fn foo() -> Array::<felt252> {
+    array::array_new::<felt252>()
+}
+
+//! > casm
+%{ memory[ap + 0] = segments.add() %}
+ap += 1;
+[ap + 0] = [ap + -1], ap++;
+[ap + 0] = [ap + -2], ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 300})
+
+//! > sierra_code
+type Array<felt252> = Array<felt252> [storable: true, drop: true, dup: false, zero_sized: false];
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc array_new<felt252> = array_new<felt252>;
+libfunc store_temp<Array<felt252>> = store_temp<Array<felt252>>;
+
+array_new<felt252>() -> ([0]); // 0
+store_temp<Array<felt252>>([0]) -> ([1]); // 1
+return([1]); // 2
+
+test::foo@0() -> (Array<felt252>);
+
+//! > ==========================================================================
+
+//! > array_append libfunc
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+fn foo(ref arr: Array::<felt252>, value: felt252) {
+    array::array_append::<felt252>(ref arr, value);
+}
+
+//! > casm
+[fp + -3] = [[fp + -4] + 0];
+[ap + 0] = [fp + -5], ap++;
+[ap + 0] = [fp + -4] + 1, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 300})
+
+//! > sierra_code
+type Array<felt252> = Array<felt252> [storable: true, drop: true, dup: false, zero_sized: false];
+type Unit = Struct<ut@Tuple> [storable: true, drop: true, dup: true, zero_sized: true];
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc array_append<felt252> = array_append<felt252>;
+libfunc struct_construct<Unit> = struct_construct<Unit>;
+libfunc store_temp<Array<felt252>> = store_temp<Array<felt252>>;
+libfunc store_temp<Unit> = store_temp<Unit>;
+
+array_append<felt252>([0], [1]) -> ([2]); // 0
+struct_construct<Unit>() -> ([3]); // 1
+store_temp<Array<felt252>>([2]) -> ([4]); // 2
+store_temp<Unit>([3]) -> ([5]); // 3
+return([4], [5]); // 4
+
+test::foo@0([0]: Array<felt252>, [1]: felt252) -> (Array<felt252>, Unit);
+
+//! > ==========================================================================
+
+//! > array_append libfunc twice.
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+fn foo(ref arr: Array::<felt252>, value1: felt252, value2: felt252) {
+    array::array_append::<felt252>(ref arr, value1);
+    array::array_append::<felt252>(ref arr, value2);
+}
+
+//! > casm
+[fp + -4] = [[fp + -5] + 0];
+[fp + -3] = [[fp + -5] + 1];
+[ap + 0] = [fp + -6], ap++;
+[ap + 0] = [fp + -5] + 2, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 400})
+
+//! > sierra_code
+type Array<felt252> = Array<felt252> [storable: true, drop: true, dup: false, zero_sized: false];
+type Unit = Struct<ut@Tuple> [storable: true, drop: true, dup: true, zero_sized: true];
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc array_append<felt252> = array_append<felt252>;
+libfunc struct_construct<Unit> = struct_construct<Unit>;
+libfunc store_temp<Array<felt252>> = store_temp<Array<felt252>>;
+libfunc store_temp<Unit> = store_temp<Unit>;
+
+array_append<felt252>([0], [1]) -> ([3]); // 0
+array_append<felt252>([3], [2]) -> ([4]); // 1
+struct_construct<Unit>() -> ([5]); // 2
+store_temp<Array<felt252>>([4]) -> ([6]); // 3
+store_temp<Unit>([5]) -> ([7]); // 4
+return([6], [7]); // 5
+
+test::foo@0([0]: Array<felt252>, [1]: felt252, [2]: felt252) -> (Array<felt252>, Unit);
+
+//! > ==========================================================================
+
+//! > array_pop_front libfunc
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+fn foo(ref arr: Array::<felt252>) -> Option::<Box<felt252>> {
+    array::array_pop_front::<felt252>(ref arr)
+}
+
+//! > casm
+[fp + -3] = [ap + 0] + [fp + -4], ap++;
+jmp rel 4 if [ap + -1] != 0;
+jmp rel 10;
+[ap + 0] = [fp + -4] + 1, ap++;
+[ap + 0] = [fp + -3], ap++;
+[ap + 0] = 0, ap++;
+[ap + 0] = [fp + -4], ap++;
+jmp rel 8;
+[ap + 0] = [fp + -4], ap++;
+[ap + 0] = [fp + -3], ap++;
+[ap + 0] = 1, ap++;
+[ap + 0] = 0, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 700})
+
+//! > sierra_code
+type Array<felt252> = Array<felt252> [storable: true, drop: true, dup: false, zero_sized: false];
+type Unit = Struct<ut@Tuple> [storable: true, drop: true, dup: true, zero_sized: true];
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+type Box<felt252> = Box<felt252> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::option::Option::<core::box::Box::<core::felt252>> = Enum<ut@core::option::Option::<core::box::Box::<core::felt252>>, Box<felt252>, Unit> [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc array_pop_front<felt252> = array_pop_front<felt252>;
+libfunc branch_align = branch_align;
+libfunc enum_init<core::option::Option::<core::box::Box::<core::felt252>>, 0> = enum_init<core::option::Option::<core::box::Box::<core::felt252>>, 0>;
+libfunc store_temp<Array<felt252>> = store_temp<Array<felt252>>;
+libfunc store_temp<core::option::Option::<core::box::Box::<core::felt252>>> = store_temp<core::option::Option::<core::box::Box::<core::felt252>>>;
+libfunc jump = jump;
+libfunc struct_construct<Unit> = struct_construct<Unit>;
+libfunc enum_init<core::option::Option::<core::box::Box::<core::felt252>>, 1> = enum_init<core::option::Option::<core::box::Box::<core::felt252>>, 1>;
+libfunc rename<Array<felt252>> = rename<Array<felt252>>;
+libfunc rename<core::option::Option::<core::box::Box::<core::felt252>>> = rename<core::option::Option::<core::box::Box::<core::felt252>>>;
+
+array_pop_front<felt252>([0]) { fallthrough([1], [2]) 6([3]) }; // 0
+branch_align() -> (); // 1
+enum_init<core::option::Option::<core::box::Box::<core::felt252>>, 0>([2]) -> ([4]); // 2
+store_temp<Array<felt252>>([1]) -> ([5]); // 3
+store_temp<core::option::Option::<core::box::Box::<core::felt252>>>([4]) -> ([6]); // 4
+jump() { 11() }; // 5
+branch_align() -> (); // 6
+struct_construct<Unit>() -> ([7]); // 7
+enum_init<core::option::Option::<core::box::Box::<core::felt252>>, 1>([7]) -> ([8]); // 8
+store_temp<Array<felt252>>([3]) -> ([5]); // 9
+store_temp<core::option::Option::<core::box::Box::<core::felt252>>>([8]) -> ([6]); // 10
+rename<Array<felt252>>([5]) -> ([9]); // 11
+rename<core::option::Option::<core::box::Box::<core::felt252>>>([6]) -> ([10]); // 12
+return([9], [10]); // 13
+
+test::foo@0([0]: Array<felt252>) -> (Array<felt252>, core::option::Option::<core::box::Box::<core::felt252>>);
+
+//! > ==========================================================================
+
+//! > array_pop_front_consume libfunc
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+fn foo(arr: Array<felt252>) -> Option::<(Array<felt252>, Box<felt252>)> {
+    array::array_pop_front_consume::<felt252>(arr)
+}
+
+//! > casm
+[fp + -3] = [ap + 0] + [fp + -4], ap++;
+jmp rel 4 if [ap + -1] != 0;
+jmp rel 10;
+[ap + 0] = 0, ap++;
+[ap + 0] = [fp + -4] + 1, ap++;
+[ap + 0] = [fp + -3], ap++;
+[ap + 0] = [fp + -4], ap++;
+jmp rel 10;
+[ap + 0] = 1, ap++;
+[ap + 0] = 0, ap++;
+[ap + 0] = 0, ap++;
+[ap + 0] = 0, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 700})
+
+//! > sierra_code
+type Array<felt252> = Array<felt252> [storable: true, drop: true, dup: false, zero_sized: false];
+type Unit = Struct<ut@Tuple> [storable: true, drop: true, dup: true, zero_sized: true];
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+type Box<felt252> = Box<felt252> [storable: true, drop: true, dup: true, zero_sized: false];
+type Tuple<Array<felt252>, Box<felt252>> = Struct<ut@Tuple, Array<felt252>, Box<felt252>> [storable: true, drop: true, dup: false, zero_sized: false];
+type core::option::Option::<(core::array::Array::<core::felt252>, core::box::Box::<core::felt252>)> = Enum<ut@core::option::Option::<(core::array::Array::<core::felt252>, core::box::Box::<core::felt252>)>, Tuple<Array<felt252>, Box<felt252>>, Unit> [storable: true, drop: true, dup: false, zero_sized: false];
+
+libfunc array_pop_front_consume<felt252> = array_pop_front_consume<felt252>;
+libfunc branch_align = branch_align;
+libfunc struct_construct<Tuple<Array<felt252>, Box<felt252>>> = struct_construct<Tuple<Array<felt252>, Box<felt252>>>;
+libfunc enum_init<core::option::Option::<(core::array::Array::<core::felt252>, core::box::Box::<core::felt252>)>, 0> = enum_init<core::option::Option::<(core::array::Array::<core::felt252>, core::box::Box::<core::felt252>)>, 0>;
+libfunc store_temp<core::option::Option::<(core::array::Array::<core::felt252>, core::box::Box::<core::felt252>)>> = store_temp<core::option::Option::<(core::array::Array::<core::felt252>, core::box::Box::<core::felt252>)>>;
+libfunc jump = jump;
+libfunc struct_construct<Unit> = struct_construct<Unit>;
+libfunc enum_init<core::option::Option::<(core::array::Array::<core::felt252>, core::box::Box::<core::felt252>)>, 1> = enum_init<core::option::Option::<(core::array::Array::<core::felt252>, core::box::Box::<core::felt252>)>, 1>;
+libfunc rename<core::option::Option::<(core::array::Array::<core::felt252>, core::box::Box::<core::felt252>)>> = rename<core::option::Option::<(core::array::Array::<core::felt252>, core::box::Box::<core::felt252>)>>;
+
+array_pop_front_consume<felt252>([0]) { fallthrough([1], [2]) 6() }; // 0
+branch_align() -> (); // 1
+struct_construct<Tuple<Array<felt252>, Box<felt252>>>([1], [2]) -> ([3]); // 2
+enum_init<core::option::Option::<(core::array::Array::<core::felt252>, core::box::Box::<core::felt252>)>, 0>([3]) -> ([4]); // 3
+store_temp<core::option::Option::<(core::array::Array::<core::felt252>, core::box::Box::<core::felt252>)>>([4]) -> ([5]); // 4
+jump() { 10() }; // 5
+branch_align() -> (); // 6
+struct_construct<Unit>() -> ([6]); // 7
+enum_init<core::option::Option::<(core::array::Array::<core::felt252>, core::box::Box::<core::felt252>)>, 1>([6]) -> ([7]); // 8
+store_temp<core::option::Option::<(core::array::Array::<core::felt252>, core::box::Box::<core::felt252>)>>([7]) -> ([5]); // 9
+rename<core::option::Option::<(core::array::Array::<core::felt252>, core::box::Box::<core::felt252>)>>([5]) -> ([8]); // 10
+return([8]); // 11
+
+test::foo@0([0]: Array<felt252>) -> (core::option::Option::<(core::array::Array::<core::felt252>, core::box::Box::<core::felt252>)>);
+
+//! > ==========================================================================
+
+//! > array_snapshot_pop_front libfunc
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+fn foo(ref arr: @Array::<felt252>) -> Option::<Box<@felt252>> {
+    array::array_snapshot_pop_front::<felt252>(ref arr)
+}
+
+//! > casm
+[fp + -3] = [ap + 0] + [fp + -4], ap++;
+jmp rel 4 if [ap + -1] != 0;
+jmp rel 10;
+[ap + 0] = [fp + -4] + 1, ap++;
+[ap + 0] = [fp + -3], ap++;
+[ap + 0] = 0, ap++;
+[ap + 0] = [fp + -4], ap++;
+jmp rel 8;
+[ap + 0] = [fp + -4], ap++;
+[ap + 0] = [fp + -3], ap++;
+[ap + 0] = 1, ap++;
+[ap + 0] = 0, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 700})
+
+//! > sierra_code
+type Array<felt252> = Array<felt252> [storable: true, drop: true, dup: false, zero_sized: false];
+type Snapshot<Array<felt252>> = Snapshot<Array<felt252>> [storable: true, drop: true, dup: true, zero_sized: false];
+type Unit = Struct<ut@Tuple> [storable: true, drop: true, dup: true, zero_sized: true];
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+type Box<felt252> = Box<felt252> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::option::Option::<core::box::Box::<@core::felt252>> = Enum<ut@core::option::Option::<core::box::Box::<@core::felt252>>, Box<felt252>, Unit> [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc array_snapshot_pop_front<felt252> = array_snapshot_pop_front<felt252>;
+libfunc branch_align = branch_align;
+libfunc enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 0> = enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 0>;
+libfunc store_temp<Snapshot<Array<felt252>>> = store_temp<Snapshot<Array<felt252>>>;
+libfunc store_temp<core::option::Option::<core::box::Box::<@core::felt252>>> = store_temp<core::option::Option::<core::box::Box::<@core::felt252>>>;
+libfunc jump = jump;
+libfunc struct_construct<Unit> = struct_construct<Unit>;
+libfunc enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 1> = enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 1>;
+libfunc rename<Snapshot<Array<felt252>>> = rename<Snapshot<Array<felt252>>>;
+libfunc rename<core::option::Option::<core::box::Box::<@core::felt252>>> = rename<core::option::Option::<core::box::Box::<@core::felt252>>>;
+
+array_snapshot_pop_front<felt252>([0]) { fallthrough([1], [2]) 6([3]) }; // 0
+branch_align() -> (); // 1
+enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 0>([2]) -> ([4]); // 2
+store_temp<Snapshot<Array<felt252>>>([1]) -> ([5]); // 3
+store_temp<core::option::Option::<core::box::Box::<@core::felt252>>>([4]) -> ([6]); // 4
+jump() { 11() }; // 5
+branch_align() -> (); // 6
+struct_construct<Unit>() -> ([7]); // 7
+enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 1>([7]) -> ([8]); // 8
+store_temp<Snapshot<Array<felt252>>>([3]) -> ([5]); // 9
+store_temp<core::option::Option::<core::box::Box::<@core::felt252>>>([8]) -> ([6]); // 10
+rename<Snapshot<Array<felt252>>>([5]) -> ([9]); // 11
+rename<core::option::Option::<core::box::Box::<@core::felt252>>>([6]) -> ([10]); // 12
+return([9], [10]); // 13
+
+test::foo@0([0]: Snapshot<Array<felt252>>) -> (Snapshot<Array<felt252>>, core::option::Option::<core::box::Box::<@core::felt252>>);
+
+//! > ==========================================================================
+
+//! > array_snapshot_pop_back libfunc
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+fn foo(ref arr: @Array::<felt252>) -> Option::<Box<@felt252>> {
+    array::array_snapshot_pop_back::<felt252>(ref arr)
+}
+
+//! > casm
+[fp + -3] = [ap + 0] + [fp + -4], ap++;
+jmp rel 4 if [ap + -1] != 0;
+jmp rel 11;
+[ap + 0] = [fp + -4], ap++;
+[fp + -3] = [ap + 0] + 1, ap++;
+[ap + 0] = 0, ap++;
+[fp + -3] = [ap + 0] + 1, ap++;
+jmp rel 8;
+[ap + 0] = [fp + -4], ap++;
+[ap + 0] = [fp + -3], ap++;
+[ap + 0] = 1, ap++;
+[ap + 0] = 0, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 700})
+
+//! > sierra_code
+type Array<felt252> = Array<felt252> [storable: true, drop: true, dup: false, zero_sized: false];
+type Snapshot<Array<felt252>> = Snapshot<Array<felt252>> [storable: true, drop: true, dup: true, zero_sized: false];
+type Unit = Struct<ut@Tuple> [storable: true, drop: true, dup: true, zero_sized: true];
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+type Box<felt252> = Box<felt252> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::option::Option::<core::box::Box::<@core::felt252>> = Enum<ut@core::option::Option::<core::box::Box::<@core::felt252>>, Box<felt252>, Unit> [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc array_snapshot_pop_back<felt252> = array_snapshot_pop_back<felt252>;
+libfunc branch_align = branch_align;
+libfunc enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 0> = enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 0>;
+libfunc store_temp<Snapshot<Array<felt252>>> = store_temp<Snapshot<Array<felt252>>>;
+libfunc store_temp<core::option::Option::<core::box::Box::<@core::felt252>>> = store_temp<core::option::Option::<core::box::Box::<@core::felt252>>>;
+libfunc jump = jump;
+libfunc struct_construct<Unit> = struct_construct<Unit>;
+libfunc enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 1> = enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 1>;
+libfunc rename<Snapshot<Array<felt252>>> = rename<Snapshot<Array<felt252>>>;
+libfunc rename<core::option::Option::<core::box::Box::<@core::felt252>>> = rename<core::option::Option::<core::box::Box::<@core::felt252>>>;
+
+array_snapshot_pop_back<felt252>([0]) { fallthrough([1], [2]) 6([3]) }; // 0
+branch_align() -> (); // 1
+enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 0>([2]) -> ([4]); // 2
+store_temp<Snapshot<Array<felt252>>>([1]) -> ([5]); // 3
+store_temp<core::option::Option::<core::box::Box::<@core::felt252>>>([4]) -> ([6]); // 4
+jump() { 11() }; // 5
+branch_align() -> (); // 6
+struct_construct<Unit>() -> ([7]); // 7
+enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 1>([7]) -> ([8]); // 8
+store_temp<Snapshot<Array<felt252>>>([3]) -> ([5]); // 9
+store_temp<core::option::Option::<core::box::Box::<@core::felt252>>>([8]) -> ([6]); // 10
+rename<Snapshot<Array<felt252>>>([5]) -> ([9]); // 11
+rename<core::option::Option::<core::box::Box::<@core::felt252>>>([6]) -> ([10]); // 12
+return([9], [10]); // 13
+
+test::foo@0([0]: Snapshot<Array<felt252>>) -> (Snapshot<Array<felt252>>, core::option::Option::<core::box::Box::<@core::felt252>>);
+
+//! > ==========================================================================
+
+//! > array_get libfunc
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+fn foo(arr: @Array::<felt252>, idx: usize) -> Option::<Box<@felt252>> {
+    array::array_get(arr, idx)
+}
+
+//! > casm
+[fp + -4] = [ap + 0] + [fp + -5], ap++;
+%{ memory[ap + 0] = memory[fp + -3] < memory[ap + -1] %}
+jmp rel 6 if [ap + 0] != 0, ap++;
+[fp + -3] = [ap + 0] + [ap + -2], ap++;
+[ap + -1] = [[fp + -6] + 0];
+jmp rel 13;
+[ap + 0] = [fp + -3] + 1, ap++;
+[ap + -3] = [ap + 0] + [ap + -1], ap++;
+[ap + -1] = [[fp + -6] + 0];
+[ap + 0] = [fp + -6] + 1, ap++;
+[ap + 0] = 0, ap++;
+[ap + 0] = [fp + -5] + [fp + -3], ap++;
+jmp rel 10;
+ap += 1;
+[ap + 0] = [fp + -6] + 1, ap++;
+[ap + 0] = 1, ap++;
+[ap + 0] = 0, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 980})
+
+//! > sierra_code
+type RangeCheck = RangeCheck [storable: true, drop: false, dup: false, zero_sized: false];
+type Unit = Struct<ut@Tuple> [storable: true, drop: true, dup: true, zero_sized: true];
+type Box<felt252> = Box<felt252> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::option::Option::<core::box::Box::<@core::felt252>> = Enum<ut@core::option::Option::<core::box::Box::<@core::felt252>>, Box<felt252>, Unit> [storable: true, drop: true, dup: true, zero_sized: false];
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+type u32 = u32 [storable: true, drop: true, dup: true, zero_sized: false];
+type Array<felt252> = Array<felt252> [storable: true, drop: true, dup: false, zero_sized: false];
+type Snapshot<Array<felt252>> = Snapshot<Array<felt252>> [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc array_get<felt252> = array_get<felt252>;
+libfunc branch_align = branch_align;
+libfunc enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 0> = enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 0>;
+libfunc store_temp<RangeCheck> = store_temp<RangeCheck>;
+libfunc store_temp<core::option::Option::<core::box::Box::<@core::felt252>>> = store_temp<core::option::Option::<core::box::Box::<@core::felt252>>>;
+libfunc jump = jump;
+libfunc struct_construct<Unit> = struct_construct<Unit>;
+libfunc enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 1> = enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 1>;
+libfunc rename<RangeCheck> = rename<RangeCheck>;
+libfunc rename<core::option::Option::<core::box::Box::<@core::felt252>>> = rename<core::option::Option::<core::box::Box::<@core::felt252>>>;
+
+array_get<felt252>([0], [1], [2]) { fallthrough([3], [4]) 6([5]) }; // 0
+branch_align() -> (); // 1
+enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 0>([4]) -> ([6]); // 2
+store_temp<RangeCheck>([3]) -> ([7]); // 3
+store_temp<core::option::Option::<core::box::Box::<@core::felt252>>>([6]) -> ([8]); // 4
+jump() { 11() }; // 5
+branch_align() -> (); // 6
+struct_construct<Unit>() -> ([9]); // 7
+enum_init<core::option::Option::<core::box::Box::<@core::felt252>>, 1>([9]) -> ([10]); // 8
+store_temp<RangeCheck>([5]) -> ([7]); // 9
+store_temp<core::option::Option::<core::box::Box::<@core::felt252>>>([10]) -> ([8]); // 10
+rename<RangeCheck>([7]) -> ([11]); // 11
+rename<core::option::Option::<core::box::Box::<@core::felt252>>>([8]) -> ([12]); // 12
+return([11], [12]); // 13
+
+test::foo@0([0]: RangeCheck, [1]: Snapshot<Array<felt252>>, [2]: u32) -> (RangeCheck, core::option::Option::<core::box::Box::<@core::felt252>>);
+
+//! > ==========================================================================
+
+//! > array_get libfunc on larger element
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+fn foo(arr: @Array::<u256>, idx: usize) -> Option::<Box<@u256>> {
+    array::array_get(arr, idx)
+}
+
+//! > casm
+[fp + -4] = [ap + 0] + [fp + -5], ap++;
+[ap + 0] = [fp + -3] * 2, ap++;
+%{ memory[ap + 0] = memory[ap + -1] < memory[ap + -2] %}
+jmp rel 6 if [ap + 0] != 0, ap++;
+[ap + -2] = [ap + 0] + [ap + -3], ap++;
+[ap + -1] = [[fp + -6] + 0];
+jmp rel 13;
+[ap + 0] = [ap + -2] + 1, ap++;
+[ap + -4] = [ap + 0] + [ap + -1], ap++;
+[ap + -1] = [[fp + -6] + 0];
+[ap + 0] = [fp + -6] + 1, ap++;
+[ap + 0] = 0, ap++;
+[ap + 0] = [fp + -5] + [ap + -6], ap++;
+jmp rel 10;
+ap += 1;
+[ap + 0] = [fp + -6] + 1, ap++;
+[ap + 0] = 1, ap++;
+[ap + 0] = 0, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 1080})
+
+//! > sierra_code
+type RangeCheck = RangeCheck [storable: true, drop: false, dup: false, zero_sized: false];
+type Unit = Struct<ut@Tuple> [storable: true, drop: true, dup: true, zero_sized: true];
+type Box<core::integer::u256> = Box<core::integer::u256> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::option::Option::<core::box::Box::<@core::integer::u256>> = Enum<ut@core::option::Option::<core::box::Box::<@core::integer::u256>>, Box<core::integer::u256>, Unit> [storable: true, drop: true, dup: true, zero_sized: false];
+type u128 = u128 [storable: true, drop: true, dup: true, zero_sized: false];
+type core::integer::u256 = Struct<ut@core::integer::u256, u128, u128> [storable: true, drop: true, dup: true, zero_sized: false];
+type u32 = u32 [storable: true, drop: true, dup: true, zero_sized: false];
+type Array<core::integer::u256> = Array<core::integer::u256> [storable: true, drop: true, dup: false, zero_sized: false];
+type Snapshot<Array<core::integer::u256>> = Snapshot<Array<core::integer::u256>> [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc array_get<core::integer::u256> = array_get<core::integer::u256>;
+libfunc branch_align = branch_align;
+libfunc enum_init<core::option::Option::<core::box::Box::<@core::integer::u256>>, 0> = enum_init<core::option::Option::<core::box::Box::<@core::integer::u256>>, 0>;
+libfunc store_temp<RangeCheck> = store_temp<RangeCheck>;
+libfunc store_temp<core::option::Option::<core::box::Box::<@core::integer::u256>>> = store_temp<core::option::Option::<core::box::Box::<@core::integer::u256>>>;
+libfunc jump = jump;
+libfunc struct_construct<Unit> = struct_construct<Unit>;
+libfunc enum_init<core::option::Option::<core::box::Box::<@core::integer::u256>>, 1> = enum_init<core::option::Option::<core::box::Box::<@core::integer::u256>>, 1>;
+libfunc rename<RangeCheck> = rename<RangeCheck>;
+libfunc rename<core::option::Option::<core::box::Box::<@core::integer::u256>>> = rename<core::option::Option::<core::box::Box::<@core::integer::u256>>>;
+
+array_get<core::integer::u256>([0], [1], [2]) { fallthrough([3], [4]) 6([5]) }; // 0
+branch_align() -> (); // 1
+enum_init<core::option::Option::<core::box::Box::<@core::integer::u256>>, 0>([4]) -> ([6]); // 2
+store_temp<RangeCheck>([3]) -> ([7]); // 3
+store_temp<core::option::Option::<core::box::Box::<@core::integer::u256>>>([6]) -> ([8]); // 4
+jump() { 11() }; // 5
+branch_align() -> (); // 6
+struct_construct<Unit>() -> ([9]); // 7
+enum_init<core::option::Option::<core::box::Box::<@core::integer::u256>>, 1>([9]) -> ([10]); // 8
+store_temp<RangeCheck>([5]) -> ([7]); // 9
+store_temp<core::option::Option::<core::box::Box::<@core::integer::u256>>>([10]) -> ([8]); // 10
+rename<RangeCheck>([7]) -> ([11]); // 11
+rename<core::option::Option::<core::box::Box::<@core::integer::u256>>>([8]) -> ([12]); // 12
+return([11], [12]); // 13
+
+test::foo@0([0]: RangeCheck, [1]: Snapshot<Array<core::integer::u256>>, [2]: u32) -> (RangeCheck, core::option::Option::<core::box::Box::<@core::integer::u256>>);
+
+//! > ==========================================================================
+
+//! > array_get libfunc on a non duppable type
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+fn foo(arr: @Array::<Array::<felt252>>, idx: usize) -> Option::<Box<@Array::<felt252>>> {
+    array::array_get(arr, idx)
+}
+
+//! > casm
+[fp + -4] = [ap + 0] + [fp + -5], ap++;
+[ap + 0] = [fp + -3] * 2, ap++;
+%{ memory[ap + 0] = memory[ap + -1] < memory[ap + -2] %}
+jmp rel 6 if [ap + 0] != 0, ap++;
+[ap + -2] = [ap + 0] + [ap + -3], ap++;
+[ap + -1] = [[fp + -6] + 0];
+jmp rel 13;
+[ap + 0] = [ap + -2] + 1, ap++;
+[ap + -4] = [ap + 0] + [ap + -1], ap++;
+[ap + -1] = [[fp + -6] + 0];
+[ap + 0] = [fp + -6] + 1, ap++;
+[ap + 0] = 0, ap++;
+[ap + 0] = [fp + -5] + [ap + -6], ap++;
+jmp rel 10;
+ap += 1;
+[ap + 0] = [fp + -6] + 1, ap++;
+[ap + 0] = 1, ap++;
+[ap + 0] = 0, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 1080})
+
+//! > sierra_code
+type RangeCheck = RangeCheck [storable: true, drop: false, dup: false, zero_sized: false];
+type Unit = Struct<ut@Tuple> [storable: true, drop: true, dup: true, zero_sized: true];
+type Box<Snapshot<Array<felt252>>> = Box<Snapshot<Array<felt252>>> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::option::Option::<core::box::Box::<@core::array::Array::<core::felt252>>> = Enum<ut@core::option::Option::<core::box::Box::<@core::array::Array::<core::felt252>>>, Box<Snapshot<Array<felt252>>>, Unit> [storable: true, drop: true, dup: true, zero_sized: false];
+type Array<felt252> = Array<felt252> [storable: true, drop: true, dup: false, zero_sized: false];
+type Snapshot<Array<felt252>> = Snapshot<Array<felt252>> [storable: true, drop: true, dup: true, zero_sized: false];
+type u32 = u32 [storable: true, drop: true, dup: true, zero_sized: false];
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+type Array<Array<felt252>> = Array<Array<felt252>> [storable: true, drop: true, dup: false, zero_sized: false];
+type Snapshot<Array<Array<felt252>>> = Snapshot<Array<Array<felt252>>> [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc array_get<Array<felt252>> = array_get<Array<felt252>>;
+libfunc branch_align = branch_align;
+libfunc enum_init<core::option::Option::<core::box::Box::<@core::array::Array::<core::felt252>>>, 0> = enum_init<core::option::Option::<core::box::Box::<@core::array::Array::<core::felt252>>>, 0>;
+libfunc store_temp<RangeCheck> = store_temp<RangeCheck>;
+libfunc store_temp<core::option::Option::<core::box::Box::<@core::array::Array::<core::felt252>>>> = store_temp<core::option::Option::<core::box::Box::<@core::array::Array::<core::felt252>>>>;
+libfunc jump = jump;
+libfunc struct_construct<Unit> = struct_construct<Unit>;
+libfunc enum_init<core::option::Option::<core::box::Box::<@core::array::Array::<core::felt252>>>, 1> = enum_init<core::option::Option::<core::box::Box::<@core::array::Array::<core::felt252>>>, 1>;
+libfunc rename<RangeCheck> = rename<RangeCheck>;
+libfunc rename<core::option::Option::<core::box::Box::<@core::array::Array::<core::felt252>>>> = rename<core::option::Option::<core::box::Box::<@core::array::Array::<core::felt252>>>>;
+
+array_get<Array<felt252>>([0], [1], [2]) { fallthrough([3], [4]) 6([5]) }; // 0
+branch_align() -> (); // 1
+enum_init<core::option::Option::<core::box::Box::<@core::array::Array::<core::felt252>>>, 0>([4]) -> ([6]); // 2
+store_temp<RangeCheck>([3]) -> ([7]); // 3
+store_temp<core::option::Option::<core::box::Box::<@core::array::Array::<core::felt252>>>>([6]) -> ([8]); // 4
+jump() { 11() }; // 5
+branch_align() -> (); // 6
+struct_construct<Unit>() -> ([9]); // 7
+enum_init<core::option::Option::<core::box::Box::<@core::array::Array::<core::felt252>>>, 1>([9]) -> ([10]); // 8
+store_temp<RangeCheck>([5]) -> ([7]); // 9
+store_temp<core::option::Option::<core::box::Box::<@core::array::Array::<core::felt252>>>>([10]) -> ([8]); // 10
+rename<RangeCheck>([7]) -> ([11]); // 11
+rename<core::option::Option::<core::box::Box::<@core::array::Array::<core::felt252>>>>([8]) -> ([12]); // 12
+return([11], [12]); // 13
+
+test::foo@0([0]: RangeCheck, [1]: Snapshot<Array<Array<felt252>>>, [2]: u32) -> (RangeCheck, core::option::Option::<core::box::Box::<@core::array::Array::<core::felt252>>>);
+
+//! > ==========================================================================
+
+//! > array_slice libfunc
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+fn foo(arr: @Array::<felt252>, start: usize, length: usize) -> Option::<@Array::<felt252>> {
+    array::array_slice(arr, start, length)
+}
+
+//! > casm
+[fp + -5] = [ap + 0] + [fp + -6], ap++;
+[ap + 0] = [fp + -4] + [fp + -3], ap++;
+%{ memory[ap + 0] = memory[ap + -1] <= memory[ap + -2] %}
+jmp rel 8 if [ap + 0] != 0, ap++;
+[ap + 0] = [ap + -3] + 1, ap++;
+[ap + -3] = [ap + 0] + [ap + -1], ap++;
+[ap + -1] = [[fp + -7] + 0];
+jmp rel 14;
+[ap + -3] = [ap + 0] + [ap + -2], ap++;
+[ap + -1] = [[fp + -7] + 0];
+ap += 1;
+[ap + 0] = [fp + -7] + 1, ap++;
+[ap + 0] = 0, ap++;
+[ap + 0] = [fp + -6] + [fp + -4], ap++;
+[ap + 0] = [fp + -6] + [ap + -7], ap++;
+jmp rel 10;
+[ap + 0] = [fp + -7] + 1, ap++;
+[ap + 0] = 1, ap++;
+[ap + 0] = 0, ap++;
+[ap + 0] = 0, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 1180})
+
+//! > sierra_code
+type RangeCheck = RangeCheck [storable: true, drop: false, dup: false, zero_sized: false];
+type Unit = Struct<ut@Tuple> [storable: true, drop: true, dup: true, zero_sized: true];
+type Array<felt252> = Array<felt252> [storable: true, drop: true, dup: false, zero_sized: false];
+type Snapshot<Array<felt252>> = Snapshot<Array<felt252>> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::option::Option::<@core::array::Array::<core::felt252>> = Enum<ut@core::option::Option::<@core::array::Array::<core::felt252>>, Snapshot<Array<felt252>>, Unit> [storable: true, drop: true, dup: true, zero_sized: false];
+type u32 = u32 [storable: true, drop: true, dup: true, zero_sized: false];
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc array_slice<felt252> = array_slice<felt252>;
+libfunc branch_align = branch_align;
+libfunc enum_init<core::option::Option::<@core::array::Array::<core::felt252>>, 0> = enum_init<core::option::Option::<@core::array::Array::<core::felt252>>, 0>;
+libfunc store_temp<RangeCheck> = store_temp<RangeCheck>;
+libfunc store_temp<core::option::Option::<@core::array::Array::<core::felt252>>> = store_temp<core::option::Option::<@core::array::Array::<core::felt252>>>;
+libfunc jump = jump;
+libfunc struct_construct<Unit> = struct_construct<Unit>;
+libfunc enum_init<core::option::Option::<@core::array::Array::<core::felt252>>, 1> = enum_init<core::option::Option::<@core::array::Array::<core::felt252>>, 1>;
+libfunc rename<RangeCheck> = rename<RangeCheck>;
+libfunc rename<core::option::Option::<@core::array::Array::<core::felt252>>> = rename<core::option::Option::<@core::array::Array::<core::felt252>>>;
+
+array_slice<felt252>([0], [1], [2], [3]) { fallthrough([4], [5]) 6([6]) }; // 0
+branch_align() -> (); // 1
+enum_init<core::option::Option::<@core::array::Array::<core::felt252>>, 0>([5]) -> ([7]); // 2
+store_temp<RangeCheck>([4]) -> ([8]); // 3
+store_temp<core::option::Option::<@core::array::Array::<core::felt252>>>([7]) -> ([9]); // 4
+jump() { 11() }; // 5
+branch_align() -> (); // 6
+struct_construct<Unit>() -> ([10]); // 7
+enum_init<core::option::Option::<@core::array::Array::<core::felt252>>, 1>([10]) -> ([11]); // 8
+store_temp<RangeCheck>([6]) -> ([8]); // 9
+store_temp<core::option::Option::<@core::array::Array::<core::felt252>>>([11]) -> ([9]); // 10
+rename<RangeCheck>([8]) -> ([12]); // 11
+rename<core::option::Option::<@core::array::Array::<core::felt252>>>([9]) -> ([13]); // 12
+return([12], [13]); // 13
+
+test::foo@0([0]: RangeCheck, [1]: Snapshot<Array<felt252>>, [2]: u32, [3]: u32) -> (RangeCheck, core::option::Option::<@core::array::Array::<core::felt252>>);
+
+//! > ==========================================================================
+
+//! > array_slice libfunc on larger element
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+fn foo(arr: @Array::<u256>, start: usize, length: usize) -> Option::<@Array::<u256>> {
+    array::array_slice(arr, start, length)
+}
+
+//! > casm
+[fp + -5] = [ap + 0] + [fp + -6], ap++;
+[ap + 0] = [fp + -4] + [fp + -3], ap++;
+[ap + 0] = [ap + -1] * 2, ap++;
+%{ memory[ap + 0] = memory[ap + -1] <= memory[ap + -3] %}
+jmp rel 8 if [ap + 0] != 0, ap++;
+[ap + 0] = [ap + -4] + 1, ap++;
+[ap + -3] = [ap + 0] + [ap + -1], ap++;
+[ap + -1] = [[fp + -7] + 0];
+jmp rel 14;
+[ap + -4] = [ap + 0] + [ap + -2], ap++;
+[ap + -1] = [[fp + -7] + 0];
+[ap + 0] = [fp + -4] * 2, ap++;
+[ap + 0] = [fp + -7] + 1, ap++;
+[ap + 0] = 0, ap++;
+[ap + 0] = [fp + -6] + [ap + -3], ap++;
+[ap + 0] = [fp + -6] + [ap + -7], ap++;
+jmp rel 10;
+[ap + 0] = [fp + -7] + 1, ap++;
+[ap + 0] = 1, ap++;
+[ap + 0] = 0, ap++;
+[ap + 0] = 0, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 1270})
+
+//! > sierra_code
+type RangeCheck = RangeCheck [storable: true, drop: false, dup: false, zero_sized: false];
+type Unit = Struct<ut@Tuple> [storable: true, drop: true, dup: true, zero_sized: true];
+type Array<core::integer::u256> = Array<core::integer::u256> [storable: true, drop: true, dup: false, zero_sized: false];
+type Snapshot<Array<core::integer::u256>> = Snapshot<Array<core::integer::u256>> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::option::Option::<@core::array::Array::<core::integer::u256>> = Enum<ut@core::option::Option::<@core::array::Array::<core::integer::u256>>, Snapshot<Array<core::integer::u256>>, Unit> [storable: true, drop: true, dup: true, zero_sized: false];
+type u32 = u32 [storable: true, drop: true, dup: true, zero_sized: false];
+type u128 = u128 [storable: true, drop: true, dup: true, zero_sized: false];
+type core::integer::u256 = Struct<ut@core::integer::u256, u128, u128> [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc array_slice<core::integer::u256> = array_slice<core::integer::u256>;
+libfunc branch_align = branch_align;
+libfunc enum_init<core::option::Option::<@core::array::Array::<core::integer::u256>>, 0> = enum_init<core::option::Option::<@core::array::Array::<core::integer::u256>>, 0>;
+libfunc store_temp<RangeCheck> = store_temp<RangeCheck>;
+libfunc store_temp<core::option::Option::<@core::array::Array::<core::integer::u256>>> = store_temp<core::option::Option::<@core::array::Array::<core::integer::u256>>>;
+libfunc jump = jump;
+libfunc struct_construct<Unit> = struct_construct<Unit>;
+libfunc enum_init<core::option::Option::<@core::array::Array::<core::integer::u256>>, 1> = enum_init<core::option::Option::<@core::array::Array::<core::integer::u256>>, 1>;
+libfunc rename<RangeCheck> = rename<RangeCheck>;
+libfunc rename<core::option::Option::<@core::array::Array::<core::integer::u256>>> = rename<core::option::Option::<@core::array::Array::<core::integer::u256>>>;
+
+array_slice<core::integer::u256>([0], [1], [2], [3]) { fallthrough([4], [5]) 6([6]) }; // 0
+branch_align() -> (); // 1
+enum_init<core::option::Option::<@core::array::Array::<core::integer::u256>>, 0>([5]) -> ([7]); // 2
+store_temp<RangeCheck>([4]) -> ([8]); // 3
+store_temp<core::option::Option::<@core::array::Array::<core::integer::u256>>>([7]) -> ([9]); // 4
+jump() { 11() }; // 5
+branch_align() -> (); // 6
+struct_construct<Unit>() -> ([10]); // 7
+enum_init<core::option::Option::<@core::array::Array::<core::integer::u256>>, 1>([10]) -> ([11]); // 8
+store_temp<RangeCheck>([6]) -> ([8]); // 9
+store_temp<core::option::Option::<@core::array::Array::<core::integer::u256>>>([11]) -> ([9]); // 10
+rename<RangeCheck>([8]) -> ([12]); // 11
+rename<core::option::Option::<@core::array::Array::<core::integer::u256>>>([9]) -> ([13]); // 12
+return([12], [13]); // 13
+
+test::foo@0([0]: RangeCheck, [1]: Snapshot<Array<core::integer::u256>>, [2]: u32, [3]: u32) -> (RangeCheck, core::option::Option::<@core::array::Array::<core::integer::u256>>);
+
+//! > ==========================================================================
+
+//! > array_slice libfunc on a non duppable type
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+fn foo(
+    arr: @Array::<Array::<felt252>>, start: usize, length: usize,
+) -> Option::<@Array::<Array::<felt252>>> {
+    array::array_slice(arr, start, length)
+}
+
+//! > casm
+[fp + -5] = [ap + 0] + [fp + -6], ap++;
+[ap + 0] = [fp + -4] + [fp + -3], ap++;
+[ap + 0] = [ap + -1] * 2, ap++;
+%{ memory[ap + 0] = memory[ap + -1] <= memory[ap + -3] %}
+jmp rel 8 if [ap + 0] != 0, ap++;
+[ap + 0] = [ap + -4] + 1, ap++;
+[ap + -3] = [ap + 0] + [ap + -1], ap++;
+[ap + -1] = [[fp + -7] + 0];
+jmp rel 14;
+[ap + -4] = [ap + 0] + [ap + -2], ap++;
+[ap + -1] = [[fp + -7] + 0];
+[ap + 0] = [fp + -4] * 2, ap++;
+[ap + 0] = [fp + -7] + 1, ap++;
+[ap + 0] = 0, ap++;
+[ap + 0] = [fp + -6] + [ap + -3], ap++;
+[ap + 0] = [fp + -6] + [ap + -7], ap++;
+jmp rel 10;
+[ap + 0] = [fp + -7] + 1, ap++;
+[ap + 0] = 1, ap++;
+[ap + 0] = 0, ap++;
+[ap + 0] = 0, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 1270})
+
+//! > sierra_code
+type RangeCheck = RangeCheck [storable: true, drop: false, dup: false, zero_sized: false];
+type Unit = Struct<ut@Tuple> [storable: true, drop: true, dup: true, zero_sized: true];
+type Array<Array<felt252>> = Array<Array<felt252>> [storable: true, drop: true, dup: false, zero_sized: false];
+type Snapshot<Array<Array<felt252>>> = Snapshot<Array<Array<felt252>>> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::option::Option::<@core::array::Array::<core::array::Array::<core::felt252>>> = Enum<ut@core::option::Option::<@core::array::Array::<core::array::Array::<core::felt252>>>, Snapshot<Array<Array<felt252>>>, Unit> [storable: true, drop: true, dup: true, zero_sized: false];
+type u32 = u32 [storable: true, drop: true, dup: true, zero_sized: false];
+type Array<felt252> = Array<felt252> [storable: true, drop: true, dup: false, zero_sized: false];
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc array_slice<Array<felt252>> = array_slice<Array<felt252>>;
+libfunc branch_align = branch_align;
+libfunc enum_init<core::option::Option::<@core::array::Array::<core::array::Array::<core::felt252>>>, 0> = enum_init<core::option::Option::<@core::array::Array::<core::array::Array::<core::felt252>>>, 0>;
+libfunc store_temp<RangeCheck> = store_temp<RangeCheck>;
+libfunc store_temp<core::option::Option::<@core::array::Array::<core::array::Array::<core::felt252>>>> = store_temp<core::option::Option::<@core::array::Array::<core::array::Array::<core::felt252>>>>;
+libfunc jump = jump;
+libfunc struct_construct<Unit> = struct_construct<Unit>;
+libfunc enum_init<core::option::Option::<@core::array::Array::<core::array::Array::<core::felt252>>>, 1> = enum_init<core::option::Option::<@core::array::Array::<core::array::Array::<core::felt252>>>, 1>;
+libfunc rename<RangeCheck> = rename<RangeCheck>;
+libfunc rename<core::option::Option::<@core::array::Array::<core::array::Array::<core::felt252>>>> = rename<core::option::Option::<@core::array::Array::<core::array::Array::<core::felt252>>>>;
+
+array_slice<Array<felt252>>([0], [1], [2], [3]) { fallthrough([4], [5]) 6([6]) }; // 0
+branch_align() -> (); // 1
+enum_init<core::option::Option::<@core::array::Array::<core::array::Array::<core::felt252>>>, 0>([5]) -> ([7]); // 2
+store_temp<RangeCheck>([4]) -> ([8]); // 3
+store_temp<core::option::Option::<@core::array::Array::<core::array::Array::<core::felt252>>>>([7]) -> ([9]); // 4
+jump() { 11() }; // 5
+branch_align() -> (); // 6
+struct_construct<Unit>() -> ([10]); // 7
+enum_init<core::option::Option::<@core::array::Array::<core::array::Array::<core::felt252>>>, 1>([10]) -> ([11]); // 8
+store_temp<RangeCheck>([6]) -> ([8]); // 9
+store_temp<core::option::Option::<@core::array::Array::<core::array::Array::<core::felt252>>>>([11]) -> ([9]); // 10
+rename<RangeCheck>([8]) -> ([12]); // 11
+rename<core::option::Option::<@core::array::Array::<core::array::Array::<core::felt252>>>>([9]) -> ([13]); // 12
+return([12], [13]); // 13
+
+test::foo@0([0]: RangeCheck, [1]: Snapshot<Array<Array<felt252>>>, [2]: u32, [3]: u32) -> (RangeCheck, core::option::Option::<@core::array::Array::<core::array::Array::<core::felt252>>>);
+
+//! > ==========================================================================
+
+//! > array_len libfunc
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+fn foo(ref arr: Array::<felt252>) -> usize {
+    array::array_len::<felt252>(@arr)
+}
+
+//! > casm
+[ap + 0] = [fp + -4], ap++;
+[ap + 0] = [fp + -3], ap++;
+[fp + -3] = [ap + 0] + [fp + -4], ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 300})
+
+//! > sierra_code
+type Array<felt252> = Array<felt252> [storable: true, drop: true, dup: false, zero_sized: false];
+type u32 = u32 [storable: true, drop: true, dup: true, zero_sized: false];
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+type Snapshot<Array<felt252>> = Snapshot<Array<felt252>> [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc snapshot_take<Array<felt252>> = snapshot_take<Array<felt252>>;
+libfunc array_len<felt252> = array_len<felt252>;
+libfunc store_temp<Array<felt252>> = store_temp<Array<felt252>>;
+libfunc store_temp<u32> = store_temp<u32>;
+
+snapshot_take<Array<felt252>>([0]) -> ([1], [2]); // 0
+array_len<felt252>([2]) -> ([3]); // 1
+store_temp<Array<felt252>>([1]) -> ([4]); // 2
+store_temp<u32>([3]) -> ([5]); // 3
+return([4], [5]); // 4
+
+test::foo@0([0]: Array<felt252>) -> (Array<felt252>, u32);
+
+//! > ==========================================================================
+
+//! > array_len libfunc on larger element
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+fn foo(ref arr: Array::<u256>) -> usize {
+    array::array_len::<u256>(@arr)
+}
+
+//! > casm
+[fp + -3] = [ap + 0] + [fp + -4], ap++;
+[ap + 0] = [fp + -4], ap++;
+[ap + 0] = [fp + -3], ap++;
+[ap + -3] = [ap + 0] * 2, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 400})
+
+//! > sierra_code
+type Array<core::integer::u256> = Array<core::integer::u256> [storable: true, drop: true, dup: false, zero_sized: false];
+type u32 = u32 [storable: true, drop: true, dup: true, zero_sized: false];
+type u128 = u128 [storable: true, drop: true, dup: true, zero_sized: false];
+type core::integer::u256 = Struct<ut@core::integer::u256, u128, u128> [storable: true, drop: true, dup: true, zero_sized: false];
+type Snapshot<Array<core::integer::u256>> = Snapshot<Array<core::integer::u256>> [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc snapshot_take<Array<core::integer::u256>> = snapshot_take<Array<core::integer::u256>>;
+libfunc array_len<core::integer::u256> = array_len<core::integer::u256>;
+libfunc store_temp<Array<core::integer::u256>> = store_temp<Array<core::integer::u256>>;
+libfunc store_temp<u32> = store_temp<u32>;
+
+snapshot_take<Array<core::integer::u256>>([0]) -> ([1], [2]); // 0
+array_len<core::integer::u256>([2]) -> ([3]); // 1
+store_temp<Array<core::integer::u256>>([1]) -> ([4]); // 2
+store_temp<u32>([3]) -> ([5]); // 3
+return([4], [5]); // 4
+
+test::foo@0([0]: Array<core::integer::u256>) -> (Array<core::integer::u256>, u32);

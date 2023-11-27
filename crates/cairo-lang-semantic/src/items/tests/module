@@ -1,0 +1,75 @@
+//! > Test redefinition of the same name.
+
+//! > test_runner_name
+test_function_diagnostics
+
+//! > function
+fn foo() {}
+
+//! > function_name
+foo
+
+//! > module_code
+fn abc() {}
+
+fn abc(a : felt252) {}
+
+mod inner {
+   struct abc {}
+}
+use inner::abc;
+
+struct abc {
+   a: felt252,
+}
+
+enum abc {
+   Abc: felt252,
+}
+
+mod abc {}
+
+trait abc {}
+
+impl abc of abc;
+
+//! > expected_diagnostics
+error: The name `abc` is defined multiple times.
+ --> lib.cairo:3:4
+fn abc(a : felt252) {}
+   ^*^
+
+error: The name `abc` is defined multiple times.
+ --> lib.cairo:8:12
+use inner::abc;
+           ^*^
+
+error: The name `abc` is defined multiple times.
+ --> lib.cairo:10:8
+struct abc {
+       ^*^
+
+error: The name `abc` is defined multiple times.
+ --> lib.cairo:14:6
+enum abc {
+     ^*^
+
+error: The name `abc` is defined multiple times.
+ --> lib.cairo:18:5
+mod abc {}
+    ^*^
+
+error: The name `abc` is defined multiple times.
+ --> lib.cairo:20:7
+trait abc {}
+      ^*^
+
+error: The name `abc` is defined multiple times.
+ --> lib.cairo:22:6
+impl abc of abc;
+     ^*^
+
+error: Not a trait.
+ --> lib.cairo:22:13
+impl abc of abc;
+            ^*^

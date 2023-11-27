@@ -1,0 +1,20 @@
+//! > Type not supported for short string.
+
+//! > test_runner_name
+test_function_diagnostics
+
+//! > function
+fn foo() {
+    let a = 'a'_Pedersen;
+}
+
+//! > function_name
+foo
+
+//! > module_code
+
+//! > expected_diagnostics
+error: Mismatched types. The type core::pedersen::Pedersen cannot be created from a numeric literal.
+ --> lib.cairo:2:13
+    let a = 'a'_Pedersen;
+            ^**********^

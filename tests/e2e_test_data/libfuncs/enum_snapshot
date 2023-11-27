@@ -1,0 +1,246 @@
+//! > match enum with a single variant
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+enum SingleVariant {
+    Variant: felt252,
+}
+
+fn foo(e: @SingleVariant) -> felt252 {
+    match e {
+        SingleVariant::Variant(_) => 0,
+    }
+}
+
+//! > casm
+[ap + 0] = 0, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 100})
+
+//! > sierra_code
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+type test::SingleVariant = Enum<ut@test::SingleVariant, felt252> [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc enum_match<test::SingleVariant> = enum_match<test::SingleVariant>;
+libfunc branch_align = branch_align;
+libfunc drop<felt252> = drop<felt252>;
+libfunc felt252_const<0> = felt252_const<0>;
+libfunc store_temp<felt252> = store_temp<felt252>;
+
+enum_match<test::SingleVariant>([0]) -> ([1]); // 0
+branch_align() -> (); // 1
+drop<felt252>([1]) -> (); // 2
+felt252_const<0>() -> ([2]); // 3
+store_temp<felt252>([2]) -> ([3]); // 4
+return([3]); // 5
+
+test::foo@0([0]: test::SingleVariant) -> (felt252);
+
+//! > ==========================================================================
+
+//! > match enum with 2 variants
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+enum Option {
+    Some: felt252,
+    None: (),
+}
+
+fn foo(e: @Option) -> felt252 {
+    match e {
+        Option::Some(_) => 0,
+        Option::None => 1,
+    }
+}
+
+//! > casm
+jmp rel 6 if [fp + -4] != 0;
+[ap + 0] = 0, ap++;
+jmp rel 4;
+[ap + 0] = 1, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 300})
+
+//! > sierra_code
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+type Unit = Struct<ut@Tuple> [storable: true, drop: true, dup: true, zero_sized: true];
+type test::Option = Enum<ut@test::Option, felt252, Unit> [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc enum_match<test::Option> = enum_match<test::Option>;
+libfunc branch_align = branch_align;
+libfunc drop<felt252> = drop<felt252>;
+libfunc felt252_const<0> = felt252_const<0>;
+libfunc store_temp<felt252> = store_temp<felt252>;
+libfunc jump = jump;
+libfunc drop<Unit> = drop<Unit>;
+libfunc felt252_const<1> = felt252_const<1>;
+libfunc rename<felt252> = rename<felt252>;
+
+enum_match<test::Option>([0]) { fallthrough([1]) 6([2]) }; // 0
+branch_align() -> (); // 1
+drop<felt252>([1]) -> (); // 2
+felt252_const<0>() -> ([3]); // 3
+store_temp<felt252>([3]) -> ([4]); // 4
+jump() { 10() }; // 5
+branch_align() -> (); // 6
+drop<Unit>([2]) -> (); // 7
+felt252_const<1>() -> ([5]); // 8
+store_temp<felt252>([5]) -> ([4]); // 9
+rename<felt252>([4]) -> ([6]); // 10
+return([6]); // 11
+
+test::foo@0([0]: test::Option) -> (felt252);
+
+//! > ==========================================================================
+
+//! > match enum with more than 2 variants
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+enum Color {
+    Red: felt252,
+    Green: felt252,
+    Blue: felt252,
+}
+
+fn foo(e: @Color) -> felt252 {
+    match e {
+        Color::Red(_) => 0,
+        Color::Green(_) => 1,
+        Color::Blue(_) => 2,
+    }
+}
+
+//! > casm
+jmp rel [fp + -4];
+jmp rel 12;
+jmp rel 6;
+[ap + 0] = 0, ap++;
+jmp rel 8;
+[ap + 0] = 1, ap++;
+jmp rel 4;
+[ap + 0] = 2, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 400})
+
+//! > sierra_code
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+type test::Color = Enum<ut@test::Color, felt252, felt252, felt252> [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc enum_match<test::Color> = enum_match<test::Color>;
+libfunc branch_align = branch_align;
+libfunc drop<felt252> = drop<felt252>;
+libfunc felt252_const<0> = felt252_const<0>;
+libfunc store_temp<felt252> = store_temp<felt252>;
+libfunc jump = jump;
+libfunc felt252_const<1> = felt252_const<1>;
+libfunc felt252_const<2> = felt252_const<2>;
+libfunc rename<felt252> = rename<felt252>;
+
+enum_match<test::Color>([0]) { fallthrough([1]) 6([2]) 11([3]) }; // 0
+branch_align() -> (); // 1
+drop<felt252>([1]) -> (); // 2
+felt252_const<0>() -> ([4]); // 3
+store_temp<felt252>([4]) -> ([5]); // 4
+jump() { 15() }; // 5
+branch_align() -> (); // 6
+drop<felt252>([2]) -> (); // 7
+felt252_const<1>() -> ([6]); // 8
+store_temp<felt252>([6]) -> ([5]); // 9
+jump() { 15() }; // 10
+branch_align() -> (); // 11
+drop<felt252>([3]) -> (); // 12
+felt252_const<2>() -> ([7]); // 13
+store_temp<felt252>([7]) -> ([5]); // 14
+rename<felt252>([5]) -> ([8]); // 15
+return([8]); // 16
+
+test::foo@0([0]: test::Color) -> (felt252);
+
+//! > ==========================================================================
+
+//! > match non-duplicatable enum with more than 2 variants
+
+//! > test_runner_name
+SmallE2ETestRunner
+
+//! > cairo
+enum Color {
+    White: (),
+    Black: (),
+    Colorful: Array::<felt252>,
+}
+
+fn foo(e: @Color) -> felt252 {
+    match e {
+        Color::White(_) => 0,
+        Color::Black(_) => 1,
+        Color::Colorful(_) => 2,
+    }
+}
+
+//! > casm
+jmp rel [fp + -5];
+jmp rel 12;
+jmp rel 6;
+[ap + 0] = 0, ap++;
+jmp rel 8;
+[ap + 0] = 1, ap++;
+jmp rel 4;
+[ap + 0] = 2, ap++;
+ret;
+
+//! > function_costs
+test::foo: OrderedHashMap({Const: 400})
+
+//! > sierra_code
+type Unit = Struct<ut@Tuple> [storable: true, drop: true, dup: true, zero_sized: true];
+type Array<felt252> = Array<felt252> [storable: true, drop: true, dup: false, zero_sized: false];
+type test::Color = Enum<ut@test::Color, Unit, Unit, Array<felt252>> [storable: true, drop: true, dup: false, zero_sized: false];
+type Snapshot<test::Color> = Snapshot<test::Color> [storable: true, drop: true, dup: true, zero_sized: false];
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+type Snapshot<Array<felt252>> = Snapshot<Array<felt252>> [storable: true, drop: true, dup: true, zero_sized: false];
+
+libfunc enum_snapshot_match<test::Color> = enum_snapshot_match<test::Color>;
+libfunc branch_align = branch_align;
+libfunc drop<Unit> = drop<Unit>;
+libfunc felt252_const<0> = felt252_const<0>;
+libfunc store_temp<felt252> = store_temp<felt252>;
+libfunc jump = jump;
+libfunc felt252_const<1> = felt252_const<1>;
+libfunc drop<Snapshot<Array<felt252>>> = drop<Snapshot<Array<felt252>>>;
+libfunc felt252_const<2> = felt252_const<2>;
+libfunc rename<felt252> = rename<felt252>;
+
+enum_snapshot_match<test::Color>([0]) { fallthrough([1]) 6([2]) 11([3]) }; // 0
+branch_align() -> (); // 1
+drop<Unit>([1]) -> (); // 2
+felt252_const<0>() -> ([4]); // 3
+store_temp<felt252>([4]) -> ([5]); // 4
+jump() { 15() }; // 5
+branch_align() -> (); // 6
+drop<Unit>([2]) -> (); // 7
+felt252_const<1>() -> ([6]); // 8
+store_temp<felt252>([6]) -> ([5]); // 9
+jump() { 15() }; // 10
+branch_align() -> (); // 11
+drop<Snapshot<Array<felt252>>>([3]) -> (); // 12
+felt252_const<2>() -> ([7]); // 13
+store_temp<felt252>([7]) -> ([5]); // 14
+rename<felt252>([5]) -> ([8]); // 15
+return([8]); // 16
+
+test::foo@0([0]: Snapshot<test::Color>) -> (felt252);

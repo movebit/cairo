@@ -1,0 +1,28 @@
+//! > Constants
+
+//! > test_runner_name
+test_function_lowering
+
+//! > function
+fn foo(x: felt252) -> felt252 {
+    MY_CONST + x
+}
+
+//! > function_name
+foo
+
+//! > module_code
+const MY_CONST: felt252 = 0x1234;
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+
+//! > lowering_flat
+Parameters: v0: core::felt252
+blk0 (root):
+Statements:
+  (v1: core::felt252) <- 4660u
+  (v3: core::felt252) <- core::felt252_add(v1, v0)
+End:
+  Return(v3)

@@ -1,0 +1,59 @@
+//! > Early return using if.
+
+//! > test_runner_name
+block_generator_test
+
+//! > function
+fn foo(x: felt252) -> felt252 {
+    if x == 0 {
+        return 1;
+    }
+    2
+}
+
+//! > function_name
+foo
+
+//! > module_code
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+
+//! > sierra_gen_diagnostics
+
+//! > sierra_code
+felt252_is_zero([0]) { fallthrough() label_test::foo::0([1]) }
+branch_align() -> ()
+felt252_const<1>() -> ([2])
+PushValues([2]: felt252) -> ([3])
+return([3])
+label_test::foo::0:
+branch_align() -> ()
+drop<NonZero<felt252>>([1]) -> ()
+felt252_const<2>() -> ([4])
+PushValues([4]: felt252) -> ([5])
+return([5])
+label_test::foo::1:
+
+//! > lowering_flat
+Parameters: v0: core::felt252
+blk0 (root):
+Statements:
+End:
+  Match(match core::felt252_is_zero(v0) {
+    IsZeroResult::Zero => blk1,
+    IsZeroResult::NonZero(v2) => blk2,
+  })
+
+blk1:
+Statements:
+  (v1: core::felt252) <- 1u
+End:
+  Return(v1)
+
+blk2:
+Statements:
+  (v3: core::felt252) <- 2u
+End:
+  Return(v3)

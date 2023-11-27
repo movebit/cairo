@@ -1,0 +1,426 @@
+//! > Test match 0.
+
+//! > test_runner_name
+test_function_lowering
+
+//! > function
+fn foo(a: felt252) -> felt252 {
+    let x = 7;
+    match x {
+        0 => a + 1,
+        _ => x,
+    }
+}
+
+//! > function_name
+foo
+
+//! > module_code
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+
+//! > lowering_flat
+Parameters: v0: core::felt252
+blk0 (root):
+Statements:
+  (v1: core::felt252) <- 7u
+End:
+  Match(match core::felt252_is_zero(v1) {
+    IsZeroResult::Zero => blk1,
+    IsZeroResult::NonZero(v2) => blk2,
+  })
+
+blk1:
+Statements:
+  (v3: core::felt252) <- 1u
+  (v6: core::felt252) <- core::felt252_add(v0, v3)
+End:
+  Goto(blk3, {v6 -> v5})
+
+blk2:
+Statements:
+End:
+  Goto(blk3, {v1 -> v5})
+
+blk3:
+Statements:
+End:
+  Return(v5)
+
+//! > ==========================================================================
+
+//! > Test array at.
+
+//! > test_runner_name
+test_function_lowering
+
+//! > function
+fn foo(a: @Array::<felt252>) -> Option<Box<@felt252>> {
+  array_get(a, 0_u32)
+}
+
+//! > function_name
+foo
+
+//! > module_code
+use array::array_get;
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+
+//! > lowering_flat
+Parameters: v7: core::RangeCheck, v0: @core::array::Array::<core::felt252>
+blk0 (root):
+Statements:
+  (v1: core::integer::u32) <- 0u
+End:
+  Match(match core::array::array_get::<core::felt252>(v7, v0, v1) {
+    Option::Some(v8, v2) => blk1,
+    Option::None(v9) => blk2,
+  })
+
+blk1:
+Statements:
+  (v3: core::option::Option::<core::box::Box::<@core::felt252>>) <- Option::Some(v2)
+End:
+  Goto(blk3, {v8 -> v10, v3 -> v6})
+
+blk2:
+Statements:
+  (v4: ()) <- struct_construct()
+  (v5: core::option::Option::<core::box::Box::<@core::felt252>>) <- Option::None(v4)
+End:
+  Goto(blk3, {v9 -> v10, v5 -> v6})
+
+blk3:
+Statements:
+End:
+  Return(v10, v6)
+
+//! > ==========================================================================
+
+//! > Test match zero with non-zero value.
+
+//! > test_runner_name
+test_function_lowering
+
+//! > function
+fn foo() -> felt252 {
+  let x = 7;
+  match x {
+      12 => x,
+      _ => 7,
+  }
+}
+
+//! > function_name
+foo
+
+//! > module_code
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+error: Match with a non-zero value is not supported.
+ --> lib.cairo:4:7
+      12 => x,
+      ^^
+
+//! > lowering_flat
+Parameters:
+
+//! > ==========================================================================
+
+//! > Test unsupported match zero.
+
+//! > test_runner_name
+test_function_lowering
+
+//! > function
+fn foo() -> felt252 {
+  let x = 7;
+  match x {
+      0 => x,
+      1 => 7,
+  }
+}
+
+//! > function_name
+foo
+
+//! > module_code
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+error: Only match zero (match ... { 0 => ..., _ => ... }) is currently supported.
+ --> lib.cairo:5:7
+      1 => 7,
+      ^
+
+//! > lowering_flat
+Parameters:
+
+//! > ==========================================================================
+
+//! > Test unsupported match non felt252 value.
+
+//! > test_runner_name
+test_function_lowering
+
+//! > function
+fn foo() {
+  match 5_u32 {
+      0 => 7,
+      _ => 8,
+  };
+}
+
+//! > function_name
+foo
+
+//! > module_code
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+error: Unsupported matched value. Currently, only matches on enums and felt252s are supported.
+ --> lib.cairo:2:3
+  match 5_u32 {
+  ^***********^
+
+//! > lowering_flat
+Parameters:
+
+//! > ==========================================================================
+
+//! > Test empty enum match.
+
+//! > test_runner_name
+test_function_lowering
+
+//! > function
+fn foo() {
+  match Option::Some(5) {};
+}
+
+//! > function_name
+foo
+
+//! > module_code
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+error: Unsupported match. Currently, matches require one arm per variant, in the order of variant definition.
+ --> lib.cairo:2:3
+  match Option::Some(5) {};
+  ^**********************^
+
+//! > lowering_flat
+Parameters:
+
+//! > ==========================================================================
+
+//! > Test empty enum match on empty enum.
+
+//! > test_runner_name
+test_function_lowering
+
+//! > function
+fn foo(e: EmptyEnum) {
+  match e {};
+}
+
+//! > function_name
+foo
+
+//! > module_code
+enum EmptyEnum {}
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+
+//! > lowering_flat
+Parameters: v0: test::EmptyEnum
+blk0 (root):
+Statements:
+End:
+  Match(match_enum(v0) {
+  })
+
+//! > ==========================================================================
+
+//! > Test empty extern match.
+
+//! > test_runner_name
+test_function_lowering
+
+//! > function
+fn foo() {
+  match felt252_is_zero(5) {};
+}
+
+//! > function_name
+foo
+
+//! > module_code
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+error: Unsupported match. Currently, matches require one arm per variant, in the order of variant definition.
+ --> lib.cairo:2:9
+  match felt252_is_zero(5) {};
+        ^****************^
+
+//! > lowering_flat
+Parameters:
+
+//! > ==========================================================================
+
+//! > Test bad extern match arm.
+
+//! > test_runner_name
+test_function_lowering
+
+//! > function
+fn foo() {
+  match get_a() {
+    A::One(_) => {},
+    _ => {},
+  };
+}
+
+//! > function_name
+foo
+
+//! > module_code
+enum A {
+  One: (),
+  Two: (),
+}
+
+extern fn get_a() -> A nopanic;
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+error: Unsupported match arm - not a variant.
+ --> lib.cairo:10:5
+    _ => {},
+    ^
+
+//! > lowering_flat
+Parameters:
+
+//! > ==========================================================================
+
+//! > Test bad match arm.
+
+//! > test_runner_name
+test_function_lowering
+
+//! > function
+fn foo(a: A) {
+  match a {
+    A::One(_) => {},
+    _ => {},
+  };
+}
+
+//! > function_name
+foo
+
+//! > module_code
+enum A {
+  One: (),
+  Two: (),
+}
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+error: Unsupported match arm - not a variant.
+ --> lib.cairo:8:5
+    _ => {},
+    ^
+
+//! > lowering_flat
+Parameters: v0: test::A
+
+//! > ==========================================================================
+
+//! > Test out of order extern match arm.
+
+//! > test_runner_name
+test_function_lowering
+
+//! > function
+fn foo() {
+  match get_a() {
+    A::Two(_) => {},
+    A::One(_) => {},
+  };
+}
+
+//! > function_name
+foo
+
+//! > module_code
+enum A {
+  One: (),
+  Two: (),
+}
+
+extern fn get_a() -> A nopanic;
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+error: Unsupported match arm - variants must be the same order as enum declaration.
+ --> lib.cairo:9:5
+    A::Two(_) => {},
+    ^*******^
+
+//! > lowering_flat
+Parameters:
+
+//! > ==========================================================================
+
+//! > Test out of order match arm.
+
+//! > test_runner_name
+test_function_lowering
+
+//! > function
+fn foo(a: A) {
+  match a {
+    A::Two(_) => {},
+    A::One(_) => {},
+  };
+}
+
+//! > function_name
+foo
+
+//! > module_code
+enum A {
+  One: (),
+  Two: (),
+}
+
+//! > semantic_diagnostics
+
+//! > lowering_diagnostics
+error: Unsupported match arm - variants must be the same order as enum declaration.
+ --> lib.cairo:7:5
+    A::Two(_) => {},
+    ^*******^
+
+//! > lowering_flat
+Parameters: v0: test::A

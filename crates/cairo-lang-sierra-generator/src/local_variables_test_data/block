@@ -1,0 +1,45 @@
+//! > Block
+
+//! > test_runner_name
+check_find_local_variables
+
+//! > function_name
+foo
+
+//! > function_code
+fn foo(x: felt252) -> felt252 {
+    let x1 = x + x;
+    let x2 = x1 + x1;
+    // TODO(lior): Replace with let (y, z) = { ... } and make sure z does not appear in the result.
+    let y = {
+        revoke_ap();
+        x1 + x1
+    };
+    // TODO(lior): Replace with "let w = x1 + x2 + z".
+    let w = x1 + x2;
+    revoke_ap();
+    x1 + y
+}
+
+//! > module_code
+// Revokes ap since this function is recursive.
+fn revoke_ap() -> felt252 {
+    revoke_ap()
+}
+
+//! > lowering_format
+Parameters: v0: core::felt252
+blk0 (root):
+Statements:
+  (v8: core::felt252) <- core::felt252_add(v0, v0)
+  (v9: core::felt252) <- core::felt252_add(v8, v8)
+  (v3: core::felt252) <- test::revoke_ap()
+  (v10: core::felt252) <- core::felt252_add(v8, v8)
+  (v11: core::felt252) <- core::felt252_add(v8, v9)
+  (v6: core::felt252) <- test::revoke_ap()
+  (v12: core::felt252) <- core::felt252_add(v8, v10)
+End:
+  Return(v12)
+
+//! > local_variables
+v10, v8, v9
