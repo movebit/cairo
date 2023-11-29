@@ -25,8 +25,9 @@ log.workspace = true
 num-bigint.workspace = true
 num-traits.workspace = true
 once_cell.workspace = true
-salsa.workspace = true
+rust-analyzer-salsa.workspace = true
 smol_str.workspace = true
+cairo-sys = { path = "../cairo-sys", version = "2.2.0" }
 
 [dev-dependencies]
 assert_matches.workspace = true

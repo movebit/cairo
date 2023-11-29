@@ -996,8 +996,19 @@ impl<T: Upcast<dyn SemanticGroup + 'static>> Elongate for T {
     }
 }
 
+pub trait AsSemanticGroupMut {
+    // fn as_semantic_group_mut(&mut self) -> &mut (dyn SemanticGroup + 'static);
+    fn as_semantic_group_mut<'a>(&'a mut self) -> &'a mut (dyn SemanticGroup + 'a);
+}
+
+impl AsSemanticGroupMut for dyn SemanticGroup +'_ {
+    fn as_semantic_group_mut<'a>(&'a mut self) -> &'a mut (dyn SemanticGroup + 'a) {  
+        self  
+    }
+}
+
 fn module_semantic_diagnostics(
-    db: &dyn SemanticGroup,
+    db: & dyn SemanticGroup,
     module_id: ModuleId,
 ) -> Maybe<Diagnostics<SemanticDiagnostic>> {
     let mut diagnostics = DiagnosticsBuilder::default();
@@ -1142,12 +1153,21 @@ fn file_semantic_diagnostics(
     db: &dyn SemanticGroup,
     file_id: FileId,
 ) -> Maybe<Diagnostics<SemanticDiagnostic>> {
+    // eprintln!(">> file_semantic_diagnostics ================================");
+    // eprintln!(">> file_semantic_diagnostics current_mem = {}Kb, CurTime = {}", cairo_sys::get_global_memory_usage(), cairo_sys::printCurTimeStr());
+
+    // eprintln!("\n-- file_semantic_diagnostics --> STEP1: after get all files_set");
+    // eprintln!("-- file_semantic_diagnostics current_mem = {}Kb, CurTime = {}", cairo_sys::get_global_memory_usage(), cairo_sys::printCurTimeStr());
+
+    // PrivModuleSemanticDataQuery.in_db(db).set_lru_capacity(64);
     let mut diagnostics = DiagnosticsBuilder::default();
     for module_id in db.file_modules(file_id)?.iter().copied() {
         if let Ok(module_diagnostics) = db.module_semantic_diagnostics(module_id) {
             diagnostics.extend(module_diagnostics)
         }
     }
+    // eprintln!("<< file_semantic_diagnostics current_mem = {}Kb, CurTime = {}", cairo_sys::get_global_memory_usage(), cairo_sys::printCurTimeStr());
+    // eprintln!("<< file_semantic_diagnostics ================================");
     Ok(diagnostics.build())
 }
 

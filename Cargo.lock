@@ -30,13 +30,14 @@ dependencies = [
 
 [[package]]
 name = "ahash"
-version = "0.8.3"
+version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c99f64d1e06488f620f932677e24bc6e2897582980441ae90a671415bd7ec2f"
+checksum = "91429305e9f0a25f6205c5b8e0d2db09e0708a7a6df0f42212bb56c32c8ac97a"
 dependencies = [
  "cfg-if",
  "once_cell",
  "version_check",
+ "zerocopy",
 ]
 
 [[package]]
@@ -290,7 +291,7 @@ checksum = "a564d521dd56509c4c47480d00b80ee55f7e385ae48db5744c67ad50c92d2ebf"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.25",
+ "syn 2.0.32",
 ]
 
 [[package]]
@@ -499,7 +500,7 @@ dependencies = [
  "cairo-lang-utils",
  "itertools 0.11.0",
  "log",
- "salsa",
+ "rust-analyzer-salsa",
  "smol_str",
  "test-log",
  "thiserror",
@@ -512,7 +513,7 @@ dependencies = [
  "cairo-lang-proc-macros",
  "cairo-lang-utils",
  "env_logger",
- "salsa",
+ "rust-analyzer-salsa",
  "test-log",
 ]
 
@@ -528,11 +529,11 @@ dependencies = [
  "cairo-lang-test-utils",
  "cairo-lang-utils",
  "env_logger",
- "indexmap 2.0.0",
+ "indexmap 2.1.0",
  "indoc",
  "itertools 0.11.0",
  "pretty_assertions",
- "salsa",
+ "rust-analyzer-salsa",
  "smol_str",
  "test-log",
 ]
@@ -549,7 +550,7 @@ dependencies = [
  "indoc",
  "itertools 0.11.0",
  "pretty_assertions",
- "salsa",
+ "rust-analyzer-salsa",
  "test-log",
 ]
 
@@ -560,7 +561,7 @@ dependencies = [
  "cairo-lang-utils",
  "env_logger",
  "good_lp",
- "indexmap 2.0.0",
+ "indexmap 2.1.0",
  "indoc",
  "itertools 0.11.0",
  "test-case",
@@ -575,7 +576,7 @@ dependencies = [
  "cairo-lang-utils",
  "env_logger",
  "path-clean",
- "salsa",
+ "rust-analyzer-salsa",
  "serde",
  "serde_json",
  "smol_str",
@@ -598,7 +599,7 @@ dependencies = [
  "itertools 0.11.0",
  "log",
  "pretty_assertions",
- "salsa",
+ "rust-analyzer-salsa",
  "smol_str",
  "test-case",
  "test-log",
@@ -629,7 +630,7 @@ dependencies = [
  "log",
  "lsp-types",
  "procinfo",
- "salsa",
+ "rust-analyzer-salsa",
  "scarb-metadata",
  "serde",
  "serde_json",
@@ -656,7 +657,7 @@ dependencies = [
  "cairo-lang-utils",
  "env_logger",
  "id-arena",
- "indexmap 2.0.0",
+ "indexmap 2.1.0",
  "indoc",
  "itertools 0.11.0",
  "log",
@@ -664,7 +665,7 @@ dependencies = [
  "num-traits 0.2.15",
  "once_cell",
  "pretty_assertions",
- "salsa",
+ "rust-analyzer-salsa",
  "smol_str",
  "test-log",
 ]
@@ -686,7 +687,7 @@ dependencies = [
  "num-bigint",
  "num-traits 0.2.15",
  "pretty_assertions",
- "salsa",
+ "rust-analyzer-salsa",
  "smol_str",
  "test-case",
  "test-log",
@@ -710,7 +711,7 @@ dependencies = [
  "indoc",
  "itertools 0.11.0",
  "num-bigint",
- "salsa",
+ "rust-analyzer-salsa",
  "serde_json",
  "smol_str",
  "test-case",
@@ -723,7 +724,7 @@ version = "2.2.0"
 dependencies = [
  "cairo-lang-debug",
  "quote",
- "syn 2.0.25",
+ "syn 2.0.32",
 ]
 
 [[package]]
@@ -772,7 +773,7 @@ dependencies = [
  "num-integer",
  "num-traits 0.2.15",
  "pretty_assertions",
- "salsa",
+ "rust-analyzer-salsa",
  "test-case",
  "thiserror",
 ]
@@ -792,6 +793,7 @@ dependencies = [
  "cairo-lang-syntax",
  "cairo-lang-test-utils",
  "cairo-lang-utils",
+ "cairo-sys",
  "env_logger",
  "id-arena",
  "indoc",
@@ -801,7 +803,7 @@ dependencies = [
  "num-traits 0.2.15",
  "once_cell",
  "pretty_assertions",
- "salsa",
+ "rust-analyzer-salsa",
  "smol_str",
  "test-case",
  "test-log",
@@ -826,7 +828,7 @@ dependencies = [
  "num-traits 0.2.15",
  "pretty_assertions",
  "regex",
- "salsa",
+ "rust-analyzer-salsa",
  "serde",
  "sha3",
  "smol_str",
@@ -888,14 +890,14 @@ dependencies = [
  "cairo-lang-utils",
  "env_logger",
  "id-arena",
- "indexmap 2.0.0",
+ "indexmap 2.1.0",
  "indoc",
  "itertools 0.11.0",
  "log",
  "num-bigint",
  "once_cell",
  "pretty_assertions",
- "salsa",
+ "rust-analyzer-salsa",
  "smol_str",
  "test-case",
  "test-log",
@@ -988,7 +990,7 @@ dependencies = [
  "num-bigint",
  "num-traits 0.2.15",
  "pretty_assertions",
- "salsa",
+ "rust-analyzer-salsa",
  "smol_str",
  "test-log",
  "thiserror",
@@ -1034,7 +1036,7 @@ dependencies = [
  "num-bigint",
  "num-traits 0.2.15",
  "rayon",
- "salsa",
+ "rust-analyzer-salsa",
  "thiserror",
 ]
 
@@ -1055,7 +1057,7 @@ name = "cairo-lang-utils"
 version = "2.2.0"
 dependencies = [
  "env_logger",
- "indexmap 2.0.0",
+ "indexmap 2.1.0",
  "itertools 0.11.0",
  "log",
  "num-bigint",
@@ -1096,6 +1098,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "cairo-sys"
+version = "2.2.0"
+dependencies = [
+ "chrono",
+ "libc",
+ "procinfo",
+]
+
+[[package]]
 name = "cairo-test"
 version = "2.2.0"
 dependencies = [
@@ -1116,7 +1127,7 @@ dependencies = [
  "bitvec",
  "cairo-felt",
  "generic-array",
- "hashbrown 0.14.0",
+ "hashbrown 0.14.3",
  "hex",
  "keccak",
  "lazy_static",
@@ -1200,10 +1211,10 @@ version = "4.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b8cd2b2a819ad6eec39e8f1d6b53001af1e5469f8c177579cdaeb313115b825f"
 dependencies = [
- "heck 0.4.1",
+ "heck",
  "proc-macro2",
  "quote",
- "syn 2.0.25",
+ "syn 2.0.32",
 ]
 
 [[package]]
@@ -1336,10 +1347,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6943ae99c34386c84a470c499d3414f66502a41340aa895406e0d2e4a207b91d"
 dependencies = [
  "cfg-if",
- "hashbrown 0.14.0",
+ "hashbrown 0.14.3",
  "lock_api",
  "once_cell",
- "parking_lot_core 0.9.8",
+ "parking_lot_core",
 ]
 
 [[package]]
@@ -1544,7 +1555,7 @@ checksum = "89ca545a94061b6365f2c7355b4b32bd20df3ff95f02da9329b34ccc3bd6ee72"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.25",
+ "syn 2.0.32",
 ]
 
 [[package]]
@@ -1687,27 +1698,18 @@ version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43a3c133739dddd0d2990f9a4bdf8eb4b21ef50e4851ca85ab661199821d510e"
 dependencies = [
- "ahash 0.8.3",
+ "ahash 0.8.6",
 ]
 
 [[package]]
 name = "hashbrown"
-version = "0.14.0"
+version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c6201b9ff9fd90a5a3bac2e56a830d0caa509576f0e503818ee82c181b3437a"
+checksum = "290f1a1d9242c78d09ce40a5e87e7554ee637af1351968159f4952f028f75604"
 dependencies = [
- "ahash 0.8.3",
+ "ahash 0.8.6",
  "allocator-api2",
  "serde",
-]
-
-[[package]]
-name = "heck"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6d621efb26863f0e9924c6ac577e8275e5e6b77455db64ffa6c65c904e9e132c"
-dependencies = [
- "unicode-segmentation",
 ]
 
 [[package]]
@@ -1835,12 +1837,12 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.0.0"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d5477fe2230a79769d8dc68e0eabf5437907c0457a5614a9e8dddb67f65eb65d"
+checksum = "d530e1a18b1cb4c484e6e34556a0d948706958449fca0cab753d649f2bce3d1f"
 dependencies = [
  "equivalent",
- "hashbrown 0.14.0",
+ "hashbrown 0.14.3",
  "serde",
 ]
 
@@ -1849,15 +1851,6 @@ name = "indoc"
 version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "761cde40c27e2a9877f8c928fd248b7eec9dd48623dd514b256858ca593fbba7"
-
-[[package]]
-name = "instant"
-version = "0.1.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a5bbe824c507c5da5956355e86a746d82e0e1464f65d862cc5e71da70e94b2c"
-dependencies = [
- "cfg-if",
-]
 
 [[package]]
 name = "is-terminal"
@@ -2278,37 +2271,12 @@ dependencies = [
 
 [[package]]
 name = "parking_lot"
-version = "0.11.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d17b78036a60663b797adeaee46f5c9dfebb86948d1255007a1d6be0271ff99"
-dependencies = [
- "instant",
- "lock_api",
- "parking_lot_core 0.8.6",
-]
-
-[[package]]
-name = "parking_lot"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3742b2c103b9f06bc9fff0a37ff4912935851bee6d36f3c02bcc755bcfec228f"
 dependencies = [
  "lock_api",
- "parking_lot_core 0.9.8",
-]
-
-[[package]]
-name = "parking_lot_core"
-version = "0.8.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "60a2cfe6f0ad2bfc16aefa463b497d5c7a5ecd44a23efa72aa342d90177356dc"
-dependencies = [
- "cfg-if",
- "instant",
- "libc",
- "redox_syscall 0.2.16",
- "smallvec",
- "winapi",
+ "parking_lot_core",
 ]
 
 [[package]]
@@ -2384,7 +2352,7 @@ checksum = "ec2e072ecce94ec471b13398d5402c188e76ac03cf74dd1a975161b23a3f6d9c"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.25",
+ "syn 2.0.32",
 ]
 
 [[package]]
@@ -2647,8 +2615,37 @@ dependencies = [
  "regex",
  "relative-path",
  "rustc_version 0.4.0",
- "syn 2.0.25",
+ "syn 2.0.32",
  "unicode-ident",
+]
+
+[[package]]
+name = "rust-analyzer-salsa"
+version = "0.17.0-pre.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4ca92b657d614d076800aa7bf5d5ba33564e71fa7f16cd79eacdfe301a50ab1c"
+dependencies = [
+ "crossbeam-utils",
+ "indexmap 2.1.0",
+ "lock_api",
+ "log",
+ "oorandom",
+ "parking_lot",
+ "rust-analyzer-salsa-macros",
+ "rustc-hash",
+ "smallvec",
+]
+
+[[package]]
+name = "rust-analyzer-salsa-macros"
+version = "0.17.0-pre.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b190359266d293f2ee13eaa502a766dc8b77b63fbaa5d460d24fd0210675ceef"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.32",
 ]
 
 [[package]]
@@ -2705,35 +2702,6 @@ name = "ryu"
 version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fe232bdf6be8c8de797b22184ee71118d63780ea42ac85b61d1baa6d3b782ae9"
-
-[[package]]
-name = "salsa"
-version = "0.16.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b84d9f96071f3f3be0dc818eae3327625d8ebc95b58da37d6850724f31d3403"
-dependencies = [
- "crossbeam-utils",
- "indexmap 1.9.3",
- "lock_api",
- "log",
- "oorandom",
- "parking_lot 0.11.2",
- "rustc-hash",
- "salsa-macros",
- "smallvec",
-]
-
-[[package]]
-name = "salsa-macros"
-version = "0.16.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd3904a4ba0a9d0211816177fd34b04c7095443f8cdacd11175064fe541c8fe2"
-dependencies = [
- "heck 0.3.3",
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
 
 [[package]]
 name = "same-file"
@@ -2829,7 +2797,7 @@ checksum = "389894603bd18c46fa56231694f8d827779c0951a667087194cf9de94ed24682"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.25",
+ "syn 2.0.32",
 ]
 
 [[package]]
@@ -2862,7 +2830,7 @@ checksum = "1d89a8107374290037607734c0b73a85db7ed80cae314b3c5791f192a496e731"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.25",
+ "syn 2.0.32",
 ]
 
 [[package]]
@@ -3012,7 +2980,7 @@ checksum = "af6527b845423542c8a16e060ea1bc43f67229848e7cd4c4d80be994a84220ce"
 dependencies = [
  "starknet-curve 0.4.0",
  "starknet-ff",
- "syn 2.0.25",
+ "syn 2.0.32",
 ]
 
 [[package]]
@@ -3078,7 +3046,7 @@ checksum = "f91138e76242f575eb1d3b38b4f1362f10d3a43f47d182a5b359af488a02293b"
 dependencies = [
  "new_debug_unreachable",
  "once_cell",
- "parking_lot 0.12.1",
+ "parking_lot",
  "phf_shared",
  "precomputed-hash",
 ]
@@ -3108,9 +3076,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.25"
+version = "2.0.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "15e3fc8c0c74267e2df136e5e5fb656a464158aa57624053375eb9c8c6e25ae2"
+checksum = "239814284fd6f1a4ffe4ca893952cdd93c224b6a1571c9a9eadd670295c0c9e2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3219,7 +3187,7 @@ dependencies = [
  "once_cell",
  "pretty_assertions",
  "rstest",
- "salsa",
+ "rust-analyzer-salsa",
  "test-case",
  "test-log",
 ]
@@ -3241,7 +3209,7 @@ checksum = "090198534930841fab3a5d1bb637cde49e339654e606195f8d9c76eeb081dc96"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.25",
+ "syn 2.0.32",
 ]
 
 [[package]]
@@ -3338,7 +3306,7 @@ dependencies = [
  "libc",
  "mio",
  "num_cpus",
- "parking_lot 0.12.1",
+ "parking_lot",
  "pin-project-lite",
  "signal-hook-registry",
  "socket2",
@@ -3354,7 +3322,7 @@ checksum = "5b8a1e28f2deaa14e508979454cb3a223b10b938b45af148bc0986de36f1923b"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.25",
+ "syn 2.0.32",
 ]
 
 [[package]]
@@ -3398,7 +3366,7 @@ version = "0.19.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c500344a19072298cd05a7224b3c0c629348b78692bf48466c5238656e315a78"
 dependencies = [
- "indexmap 2.0.0",
+ "indexmap 2.1.0",
  "serde",
  "serde_spanned",
  "toml_datetime",
@@ -3485,7 +3453,7 @@ checksum = "5f4f31f56159e98206da9efd823404b79b6ef3143b4a7ab76e67b1751b25a4ab"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.25",
+ "syn 2.0.32",
 ]
 
 [[package]]
@@ -3606,7 +3574,7 @@ dependencies = [
  "once_cell",
  "proc-macro2",
  "quote",
- "syn 2.0.25",
+ "syn 2.0.32",
  "wasm-bindgen-shared",
 ]
 
@@ -3628,7 +3596,7 @@ checksum = "54681b18a46765f095758388f2d0cf16eb8d4169b639ab575a8f5693af210c7b"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.25",
+ "syn 2.0.32",
  "wasm-bindgen-backend",
  "wasm-bindgen-shared",
 ]
@@ -3785,6 +3753,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "09041cd90cf85f7f8b2df60c646f853b7f535ce68f85244eb6731cf89fa498ec"
 
 [[package]]
+name = "zerocopy"
+version = "0.7.26"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e97e415490559a91254a2979b4829267a57d2fcd741a98eee8b722fb57289aa0"
+dependencies = [
+ "zerocopy-derive",
+]
+
+[[package]]
+name = "zerocopy-derive"
+version = "0.7.26"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd7e48ccf166952882ca8bd778a43502c64f33bf94c12ebe2a7f08e5a0f6689f"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.32",
+]
+
+[[package]]
 name = "zeroize"
 version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3801,5 +3789,5 @@ checksum = "ce36e65b0d2999d2aafac989fb249189a141aee1f53c612c1f37d72631959f69"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.25",
+ "syn 2.0.32",
 ]

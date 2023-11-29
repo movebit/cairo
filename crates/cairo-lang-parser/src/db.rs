@@ -54,6 +54,7 @@ pub fn priv_file_syntax_data(db: &dyn ParserGroup, file_id: FileId) -> SyntaxDat
 }
 
 pub fn file_syntax(db: &dyn ParserGroup, file_id: FileId) -> Maybe<SyntaxNode> {
+    eprintln!(">> crates/cairo-lang-parser/src/db.rs -- file_syntax --> priv_file_syntax_data({})", file_id.file_name(db.upcast()));
     db.priv_file_syntax_data(file_id).syntax
 }
 

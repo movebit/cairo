@@ -18,7 +18,7 @@ diffy.workspace = true
 ignore.workspace = true
 itertools.workspace = true
 log.workspace = true
-salsa.workspace = true
+rust-analyzer-salsa.workspace = true
 smol_str.workspace = true
 
 [dev-dependencies]

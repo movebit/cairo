@@ -14,7 +14,7 @@ use cairo_lang_lowering::db::{LoweringDatabase, LoweringGroup};
 use cairo_lang_parser::db::ParserDatabase;
 use cairo_lang_plugins::get_default_plugins;
 use cairo_lang_project::ProjectConfig;
-use cairo_lang_semantic::db::{SemanticDatabase, SemanticGroup};
+use cairo_lang_semantic::db::{SemanticDatabase, SemanticGroup, AsSemanticGroupMut};
 use cairo_lang_semantic::inline_macros::get_default_inline_macro_plugins;
 use cairo_lang_sierra_generator::db::SierraGenDatabase;
 use cairo_lang_syntax::node::db::{SyntaxDatabase, SyntaxGroup};
@@ -162,6 +162,14 @@ impl AsFilesGroupMut for RootDatabase {
         self
     }
 }
+
+impl AsSemanticGroupMut for RootDatabase {
+    // fn as_semantic_group_mut(&mut self) -> &mut (dyn SemanticGroup + 'static) {
+    fn as_semantic_group_mut<'a>(&'a mut self) -> &'a mut (dyn SemanticGroup + 'a) {
+        self
+    }
+}
+
 impl Upcast<dyn FilesGroup> for RootDatabase {
     fn upcast(&self) -> &(dyn FilesGroup + 'static) {
         self

@@ -31,7 +31,7 @@ use cairo_lang_lowering::diagnostic::LoweringDiagnostic;
 use cairo_lang_parser::db::ParserGroup;
 use cairo_lang_parser::ParserDiagnostic;
 use cairo_lang_project::ProjectConfig;
-use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::db::{SemanticGroup, PrivModuleSemanticDataQuery};
 use cairo_lang_semantic::items::function_with_body::SemanticExprLookup;
 use cairo_lang_semantic::items::functions::GenericFunctionId;
 use cairo_lang_semantic::items::imp::ImplId;
@@ -204,15 +204,15 @@ impl Backend {
                 let mut files_set: OrderedHashSet<_> = state.open_files.iter().copied().collect();
                 // eprintln!("-- refresh_diagnostics 00files_set.size = {}byte", mem::size_of_val(&files_set));
                 // eprintln!("-- refresh_diagnostics 00files_set.len = {}", files_set.len());
-                for crate_id in db.crates() {
-                    for module_id in db.crate_modules(crate_id).iter() {
-                        for file_id in
-                            db.module_files(*module_id).unwrap_or_default().iter().copied()
-                        {
-                            files_set.insert(file_id);
-                        }
-                    }
-                }
+                // for crate_id in db.crates() {
+                //     for module_id in db.crate_modules(crate_id).iter() {
+                //         for file_id in
+                //             db.module_files(*module_id).unwrap_or_default().iter().copied()
+                //         {
+                //             files_set.insert(file_id);
+                //         }
+                //     }
+                // }
                 // eprintln!("-- refresh_diagnostics 01files_set.size = {}byte", mem::size_of_val(&files_set));
                 // eprintln!("-- refresh_diagnostics 01files_set.len = {}", files_set.len());
                 sys::record_global_memory_usage();
@@ -222,10 +222,30 @@ impl Backend {
                 // Get all diagnostics.
                 for file_id in files_set.iter().copied() {
                     let uri = get_uri(db, file_id);
+
+                    sys::record_global_memory_usage();
+                    eprintln!("\n-- refresh_diagnostics --> STEP2_0: before file_syntax_diagnostics");
+                    eprintln!("<< refresh_diagnostics current_mem = {}Kb, CurTime = {}", sys::get_global_memory_usage(), printCurTimeStr());
+
+                    let parser = db.file_syntax_diagnostics(file_id);
+                    sys::record_global_memory_usage();
+                    eprintln!("\n-- refresh_diagnostics --> STEP2_1: after file_syntax_diagnostics");
+                    eprintln!("<< refresh_diagnostics current_mem = {}Kb, CurTime = {}", sys::get_global_memory_usage(), printCurTimeStr());
+
+                    let semantic = db.file_semantic_diagnostics(file_id).unwrap_or_default();
+                    sys::record_global_memory_usage();
+                    eprintln!("\n-- refresh_diagnostics --> STEP2_2: after file_semantic_diagnostics");
+                    eprintln!("<< refresh_diagnostics current_mem = {}Kb, CurTime = {}", sys::get_global_memory_usage(), printCurTimeStr());
+
+                    let lowering = db.file_lowering_diagnostics(file_id).unwrap_or_default();
+                    sys::record_global_memory_usage();
+                    eprintln!("\n-- refresh_diagnostics --> STEP2_3: after file_lowering_diagnostics");
+                    eprintln!("<< refresh_diagnostics current_mem = {}Kb, CurTime = {}", sys::get_global_memory_usage(), printCurTimeStr());
+
                     let new_file_diagnostics = FileDiagnostics {
-                        parser: db.file_syntax_diagnostics(file_id),
-                        semantic: db.file_semantic_diagnostics(file_id).unwrap_or_default(),
-                        lowering: db.file_lowering_diagnostics(file_id).unwrap_or_default(),
+                        parser,
+                        semantic,
+                        lowering,
                     };
                     // Since we are using Arcs, this comparison should be efficient.
                     if let Some(old_file_diagnostics) = state.file_diagnostics.get(&file_id) {
@@ -285,6 +305,7 @@ impl Backend {
             self.client.publish_diagnostics(uri, diags, None).await
         }
 
+        // eprintln!("res = {}", res.len());?
         sys::record_global_memory_usage();
         eprintln!("<< refresh_diagnostics current_mem = {}Kb, CurTime = {}", sys::get_global_memory_usage(), printCurTimeStr());
         Ok(())
@@ -566,6 +587,7 @@ impl LanguageServer for Backend {
             if is_cairo_file_path(&change.uri) {
                 let file = file(&db, change.uri.clone());
                 PrivRawFileContentQuery.in_db_mut(db.as_files_group_mut()).invalidate(&file);
+                PrivRawFileContentQuery.in_db_mut(db.as_files_group_mut()).set_lru_capacity(64);
             }
         }
         drop(db);
@@ -646,6 +668,7 @@ impl LanguageServer for Backend {
         let mut db = self.db_mut().await;
         let file = file(&db, params.text_document.uri);
         PrivRawFileContentQuery.in_db_mut(db.as_files_group_mut()).invalidate(&file);
+        PrivRawFileContentQuery.in_db_mut(db.as_files_group_mut()).set_lru_capacity(64);
         db.override_file_content(file, None);
         sys::record_global_memory_usage();
         eprintln!("<< did_save current_mem = {}Kb, CurTime = {}", sys::get_global_memory_usage(), printCurTimeStr());

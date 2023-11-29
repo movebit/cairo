@@ -27,7 +27,7 @@ indexmap.workspace = true
 itertools.workspace = true
 num-bigint.workspace = true
 once_cell.workspace = true
-salsa.workspace = true
+rust-analyzer-salsa.workspace = true
 smol_str.workspace = true
 
 [dev-dependencies]

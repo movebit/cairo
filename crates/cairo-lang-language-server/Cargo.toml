@@ -30,7 +30,7 @@ chrono = { version = "0.4", features = ["serde"] }
 indoc.workspace = true
 log.workspace = true
 lsp.workspace = true
-salsa.workspace = true
+rust-analyzer-salsa.workspace = true
 scarb-metadata.workspace = true
 serde.workspace = true
 serde_json.workspace = true
