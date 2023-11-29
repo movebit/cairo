@@ -54,7 +54,12 @@ pub fn priv_file_syntax_data(db: &dyn ParserGroup, file_id: FileId) -> SyntaxDat
 }
 
 pub fn file_syntax(db: &dyn ParserGroup, file_id: FileId) -> Maybe<SyntaxNode> {
-    eprintln!(">> crates/cairo-lang-parser/src/db.rs -- file_syntax --> priv_file_syntax_data({})", file_id.file_name(db.upcast()));
+    let files_group_db: &dyn FilesGroup = db.upcast();
+    let file_name = file_id.file_name(files_group_db);
+    if file_name.contains("interface.cairo") {
+        eprintln!(">> crates/cairo-lang-parser/src/db.rs -- file_syntax --> priv_file_syntax_data({})", file_name);
+        eprintln!(">> file_syntax current_mem = {}Kb, CurTime = {}", cairo_sys::get_global_memory_usage(), cairo_sys::printCurTimeStr());
+    }
     db.priv_file_syntax_data(file_id).syntax
 }
 
@@ -72,5 +77,11 @@ pub fn file_syntax_diagnostics(
     db: &dyn ParserGroup,
     file_id: FileId,
 ) -> Diagnostics<ParserDiagnostic> {
+    let files_group_db: &dyn FilesGroup = db.upcast();
+    let file_name = file_id.file_name(files_group_db);
+    if file_name.contains("interface.cairo") {
+        eprintln!(">> file_syntax_diagnostics({})", file_name);
+        eprintln!(">> file_syntax_diagnostics current_mem = {}Kb, CurTime = {}", cairo_sys::get_global_memory_usage(), cairo_sys::printCurTimeStr());
+    }
     db.priv_file_syntax_data(file_id).diagnostics
 }

@@ -680,6 +680,7 @@ dependencies = [
  "cairo-lang-syntax-codegen",
  "cairo-lang-test-utils",
  "cairo-lang-utils",
+ "cairo-sys",
  "colored",
  "env_logger",
  "itertools 0.11.0",

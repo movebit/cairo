@@ -1153,11 +1153,13 @@ fn file_semantic_diagnostics(
     db: &dyn SemanticGroup,
     file_id: FileId,
 ) -> Maybe<Diagnostics<SemanticDiagnostic>> {
-    // eprintln!(">> file_semantic_diagnostics ================================");
-    // eprintln!(">> file_semantic_diagnostics current_mem = {}Kb, CurTime = {}", cairo_sys::get_global_memory_usage(), cairo_sys::printCurTimeStr());
 
-    // eprintln!("\n-- file_semantic_diagnostics --> STEP1: after get all files_set");
-    // eprintln!("-- file_semantic_diagnostics current_mem = {}Kb, CurTime = {}", cairo_sys::get_global_memory_usage(), cairo_sys::printCurTimeStr());
+    let files_group_db: &dyn FilesGroup = db.upcast();
+    let file_name = file_id.file_name(files_group_db);
+    if file_name.contains("interface.cairo") {
+        eprintln!(">> file_semantic_diagnostics({})", file_name);
+        eprintln!(">> file_semantic_diagnostics current_mem = {}Kb, CurTime = {}", cairo_sys::get_global_memory_usage(), cairo_sys::printCurTimeStr());
+    }
 
     // PrivModuleSemanticDataQuery.in_db(db).set_lru_capacity(64);
     let mut diagnostics = DiagnosticsBuilder::default();
@@ -1166,8 +1168,9 @@ fn file_semantic_diagnostics(
             diagnostics.extend(module_diagnostics)
         }
     }
-    // eprintln!("<< file_semantic_diagnostics current_mem = {}Kb, CurTime = {}", cairo_sys::get_global_memory_usage(), cairo_sys::printCurTimeStr());
-    // eprintln!("<< file_semantic_diagnostics ================================");
+    if file_name.contains("interface.cairo") {
+        eprintln!("<< file_semantic_diagnostics current_mem = {}Kb, CurTime = {}", cairo_sys::get_global_memory_usage(), cairo_sys::printCurTimeStr());
+    }
     Ok(diagnostics.build())
 }
 

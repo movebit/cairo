@@ -566,6 +566,19 @@ impl LanguageServer for Backend {
         if let Err(err) = result {
             warn!("Failed to register workspace/didChangeWatchedFiles event: {:#?}", err);
         }
+
+        use cairo_lang_debug::debug::DebugWithDb;
+        let _ = self
+            .with_db(|db| {
+                for crate_id in db.crates() {
+                    for module_id in db.crate_modules(crate_id).iter() {
+                        // let file_cnt_this_mod = db.module_files(*module_id).unwrap_or_default();
+                        // eprintln!("file_cnt_this_mod[{:?}] = {}", module_id.debug(db), file_cnt_this_mod.len());
+                    }
+                }
+            })
+            .await;
+
         sys::record_global_memory_usage();
         eprintln!("<< initialized current_mem = {}Kb, CurTime = {}", sys::get_global_memory_usage(), printCurTimeStr());
     }

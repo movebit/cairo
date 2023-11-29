@@ -23,6 +23,7 @@ num-traits.workspace = true
 rust-analyzer-salsa.workspace = true
 smol_str.workspace = true
 unescaper.workspace = true
+cairo-sys = { path = "../cairo-sys", version = "2.2.0" }
 
 [dev-dependencies]
 cairo-lang-test-utils = { path = "../cairo-lang-test-utils" }
